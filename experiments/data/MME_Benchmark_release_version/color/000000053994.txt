@@ -1,2 +1,0 @@
-Is there a gray wall in the image? Please answer yes or no.	Yes
-Is there a red wall in the image? Please answer yes or no.	No

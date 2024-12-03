@@ -1,2 +1,0 @@
-Is the actor inside the red bounding box called Charlize Theron? Please answer yes or no.	Yes
-Is the actor inside the red bounding box called Young-min Kim? Please answer yes or no.	No

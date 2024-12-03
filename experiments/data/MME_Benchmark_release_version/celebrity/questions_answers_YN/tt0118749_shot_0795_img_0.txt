@@ -1,2 +1,0 @@
-Is the person inside the red bounding box called John C. Reilly? Please answer yes or no.	Yes
-Is the person inside the red bounding box called Chris Lowell? Please answer yes or no.	No

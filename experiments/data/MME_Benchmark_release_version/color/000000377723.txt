@@ -1,2 +1,0 @@
-Is there a blue bus in the image? Please answer yes or no.	Yes
-Is there a orange bus in the image? Please answer yes or no.	No

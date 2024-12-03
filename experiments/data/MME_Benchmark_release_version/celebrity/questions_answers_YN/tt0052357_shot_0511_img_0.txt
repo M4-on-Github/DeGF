@@ -1,2 +1,0 @@
-Is the actor inside the red bounding box called Kim Novak? Please answer yes or no.	Yes
-Is the actor inside the red bounding box called Abigail Van Alyn? Please answer yes or no.	No

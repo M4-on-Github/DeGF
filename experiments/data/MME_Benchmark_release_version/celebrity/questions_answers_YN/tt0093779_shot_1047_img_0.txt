@@ -1,2 +1,0 @@
-Is the person inside the red bounding box named Peter Falk? Please answer yes or no.	Yes
-Is the person inside the red bounding box named Lisa Ann Walter? Please answer yes or no.	No

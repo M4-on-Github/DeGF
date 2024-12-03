@@ -1,2 +1,0 @@
-Is the person inside the red bounding box named Tim Roth? Please answer yes or no.	Yes
-Is the person inside the red bounding box named Honey Chhaya? Please answer yes or no.	No

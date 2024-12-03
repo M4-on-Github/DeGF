@@ -1,2 +1,0 @@
-Is there a red scarf in the image?  Please answer yes or no.	Yes
-Is there a brown scarf in the image?  Please answer yes or no.	No

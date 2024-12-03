@@ -1,2 +1,0 @@
-Is the person inside the red bounding box called Rutger Hauer? Please answer yes or no.	Yes
-Is the person inside the red bounding box called Stéphane Julien? Please answer yes or no.	No

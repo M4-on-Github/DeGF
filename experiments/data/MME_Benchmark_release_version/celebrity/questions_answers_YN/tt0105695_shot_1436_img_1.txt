@@ -1,2 +1,0 @@
-Is the person inside the red bounding box called Jaimz Woolvett? Please answer yes or no.	Yes
-Is the person inside the red bounding box called Hermione Baddeley? Please answer yes or no.	No

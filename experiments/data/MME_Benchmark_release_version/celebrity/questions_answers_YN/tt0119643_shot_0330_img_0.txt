@@ -1,2 +1,0 @@
-Is the actor inside the red bounding box named Brad Pitt? Please answer yes or no.	Yes
-Is the actor inside the red bounding box named Anthony Hopkins? Please answer yes or no.	No

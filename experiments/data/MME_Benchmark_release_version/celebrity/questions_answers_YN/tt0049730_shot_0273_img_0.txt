@@ -1,2 +1,0 @@
-Is the person inside the red bounding box called Vera Miles? Please answer yes or no.	Yes
-Is the person inside the red bounding box called Addie Yungmee? Please answer yes or no.	No

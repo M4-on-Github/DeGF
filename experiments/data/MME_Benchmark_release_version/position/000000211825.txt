@@ -1,2 +1,0 @@
-Is the cake on the left side of the camera? Please answer yes or no.	Yes
-Is the cake on the right side of the camera? Please answer yes or no.	No

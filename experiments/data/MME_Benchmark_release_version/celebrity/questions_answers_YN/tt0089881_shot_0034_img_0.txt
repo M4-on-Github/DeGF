@@ -1,2 +1,0 @@
-Is the actor inside the red bounding box called Tatsuya Nakadai? Please answer yes or no.	Yes
-Is the actor inside the red bounding box called Nancy Vee? Please answer yes or no.	No

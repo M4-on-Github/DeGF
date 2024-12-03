@@ -1,2 +1,0 @@
-Is there a fire hydrant in this image? Please answer yes or no.	Yes
-Is there a person in this image? Please answer yes or no.	No

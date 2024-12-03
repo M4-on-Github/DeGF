@@ -1,2 +1,0 @@
-Is the actor inside the red bounding box called Scarlett Johansson? Please answer yes or no.	Yes
-Is the actor inside the red bounding box called Daisy Beaumont? Please answer yes or no.	No

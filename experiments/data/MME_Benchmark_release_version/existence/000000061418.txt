@@ -1,2 +1,0 @@
-Is there a chair in this image? Please answer yes or no.	Yes
-Is there a airplane in this image? Please answer yes or no.	No
