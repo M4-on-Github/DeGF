@@ -1,2 +1,0 @@
-Is this movie directed by martin scorsese? Please answer yes or no.	Yes
-Is this movie directed by chris columbus? Please answer yes or no.	No

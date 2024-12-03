@@ -1,2 +1,0 @@
-Is a python code shown in the picture? Please answer yes or no.	Yes
-Is a c++ code shown in the picture? Please answer yes or no.	No

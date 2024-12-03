@@ -1,2 +1,0 @@
-Is the person inside the red bounding box named Simon Callow? Please answer yes or no.	Yes
-Is the person inside the red bounding box named Rusty Goffe? Please answer yes or no.	No

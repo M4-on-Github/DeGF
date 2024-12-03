@@ -1,2 +1,0 @@
-Is this movie directed by james wong? Please answer yes or no.	Yes
-Is this movie directed by bob rafelson? Please answer yes or no.	No

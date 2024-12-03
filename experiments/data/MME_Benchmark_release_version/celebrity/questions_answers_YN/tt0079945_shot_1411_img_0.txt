@@ -1,2 +1,0 @@
-Is the person inside the red bounding box named Persis Khambatta? Please answer yes or no.	Yes
-Is the person inside the red bounding box named Alison Waddell? Please answer yes or no.	No

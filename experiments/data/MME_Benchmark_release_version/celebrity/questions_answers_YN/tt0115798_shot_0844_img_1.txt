@@ -1,2 +1,0 @@
-Is the person inside the red bounding box named Jim Carrey? Please answer yes or no.	Yes
-Is the person inside the red bounding box named Renee Herlocker? Please answer yes or no.	No

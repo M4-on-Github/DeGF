@@ -1,2 +1,0 @@
-Is the vase on the left of the toothbrush? Please answer yes or no.	Yes
-Is the vase on the right of the toothbrush? Please answer yes or no.	No

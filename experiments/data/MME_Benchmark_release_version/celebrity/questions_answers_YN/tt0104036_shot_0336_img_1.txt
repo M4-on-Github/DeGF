@@ -1,2 +1,0 @@
-Is the person inside the red bounding box named Stephen Rea? Please answer yes or no.	Yes
-Is the person inside the red bounding box named Mimi Lizio? Please answer yes or no.	No

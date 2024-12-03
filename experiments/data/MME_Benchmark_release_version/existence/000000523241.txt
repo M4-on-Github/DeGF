@@ -1,2 +1,0 @@
-Is there a car in this image? Please answer yes or no.	Yes
-Is there a cell phone in this image? Please answer yes or no.	No

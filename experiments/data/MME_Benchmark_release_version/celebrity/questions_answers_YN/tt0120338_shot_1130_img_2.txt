@@ -1,2 +1,0 @@
-Is the person inside the red bounding box called Leonardo DiCaprio? Please answer yes or no.	Yes
-Is the person inside the red bounding box called Anne Betancourt? Please answer yes or no.	No

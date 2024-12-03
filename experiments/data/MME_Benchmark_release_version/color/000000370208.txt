@@ -1,2 +1,0 @@
-Is there a red bicycle with white handlebars in the image? Please answer yes or no.	Yes
-Is there a red bicycle with black handlebars in the image? Please answer yes or no.	No

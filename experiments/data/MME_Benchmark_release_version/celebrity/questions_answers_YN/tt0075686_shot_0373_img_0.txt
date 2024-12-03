@@ -1,2 +1,0 @@
-Is the actor inside the red bounding box called Woody Allen? Please answer yes or no.	Yes
-Is the actor inside the red bounding box called Penny Wallace? Please answer yes or no.	No

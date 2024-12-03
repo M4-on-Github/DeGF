@@ -1,2 +1,0 @@
-Is the person inside the red bounding box called Dustin Hoffman? Please answer yes or no.	Yes
-Is the person inside the red bounding box called Fernando Lueches? Please answer yes or no.	No

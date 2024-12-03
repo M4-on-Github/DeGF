@@ -1,2 +1,0 @@
-Is the person inside the red bounding box named Sean Astin? Please answer yes or no.	Yes
-Is the person inside the red bounding box named Dan Hunter? Please answer yes or no.	No

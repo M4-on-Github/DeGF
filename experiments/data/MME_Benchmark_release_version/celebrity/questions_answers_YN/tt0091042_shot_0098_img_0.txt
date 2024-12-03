@@ -1,2 +1,0 @@
-Is the person inside the red bounding box called Matthew Broderick? Please answer yes or no.	Yes
-Is the person inside the red bounding box called Mina E. Mina? Please answer yes or no.	No

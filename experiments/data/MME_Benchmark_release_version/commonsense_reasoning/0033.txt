@@ -1,2 +1,0 @@
-This is a picture from a real scene. Is there only one real apple in this picture? Please answer yes or no.	Yes
-This is a picture from a real scene. Is there only two real apples in this picture? Please answer yes or no.	No
