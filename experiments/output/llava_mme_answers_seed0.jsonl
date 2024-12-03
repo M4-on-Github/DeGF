@@ -1,0 +1,2 @@
+{"question_id": "color/000000338560.jpg", "prompt": "Is there a blue and yellow fire hydrant in the image?\nAnswer the question using a single word or phrase.", "text": "Yes", "model_id": "llava-v1.5-7b", "image": "color/000000338560.jpg", "metadata": {}}
+{"question_id": "color/000000338560.jpg", "prompt": "Is there a blue and orange fire hydrant in the image?\nAnswer the question using a single word or phrase.", "text": "Yes", "model_id": "llava-v1.5-7b", "image": "color/000000338560.jpg", "metadata": {}}

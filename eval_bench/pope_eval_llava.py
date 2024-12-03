@@ -283,9 +283,6 @@ def main():
             input_ids = tokenizer_image_token(prompt_out, tokenizer, IMAGE_TOKEN_INDEX, return_tensors='pt').unsqueeze(0).cuda()
             stop_str = conv_out.sep if conv_out.sep_style != SeparatorStyle.TWO else conv_out.sep2
                 
-            # ==============================================
-            #                ritual method
-            # ==============================================
             with torch.inference_mode():
                 with torch.no_grad():
                     output_ids, _ = model.generate(
@@ -317,7 +314,6 @@ def main():
             if description.endswith(stop_str):
                 description = description[:-len(stop_str)]
             pred_list2 = recorder(description, pred_list2)
-            logger.info(f"[VQA for ritual]")
             logger.info(f"V: {image_path}")
             logger.info(f"Q: {qs_desc}")
             logger.info(f"D: {description}")
@@ -354,9 +350,6 @@ def main():
         input_ids = tokenizer_image_token(prompt_out, tokenizer, IMAGE_TOKEN_INDEX, return_tensors='pt').unsqueeze(0).cuda()
         stop_str = conv_out.sep if conv_out.sep_style != SeparatorStyle.TWO else conv_out.sep2
 
-        # ==============================================
-        #                ritual method
-        # ==============================================
         with torch.inference_mode():
             with torch.no_grad():
                 output_ids, js_list = model.generate(

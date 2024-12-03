@@ -1,10 +1,7 @@
 seed=2
 dataset_name="llava-bench"
-# dataset_name="ship"
-question_file="./experiments/llava-bench/questions2.jsonl"
-# question_file="./experiments/llava-bench/questions_ship.jsonl"
+question_file="./experiments/llava-bench/questions.jsonl"
 image_folder="./experiments/llava-bench/images"
-# image_folder="/home/ce/data/ship/no"
 
 # llava
 model="llava"

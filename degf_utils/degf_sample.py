@@ -552,7 +552,6 @@ def greedy_search(
             outputs, model_kwargs, is_encoder_decoder=self.config.is_encoder_decoder
         )
 
-        ## degf_comments: update model_kwargs_ritual for complementive & contrastive decoding
         if use_ritual:
             model_kwargs_pos = self._update_model_kwargs_for_generation(
                 outputs_pos, model_kwargs_pos, is_encoder_decoder=self.config.is_encoder_decoder

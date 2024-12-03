@@ -1,0 +1,2 @@
+[2024-12-03 13:34:36] Experiment directory created at ./logs/chair/instructblip/31
+[2024-12-03 13:34:36] Initializing Model

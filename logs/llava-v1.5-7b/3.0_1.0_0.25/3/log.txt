@@ -1,0 +1,240 @@
+[2024-12-03 13:20:26] Experiment directory created at ./logs/llava-v1.5-7b/3.0_1.0_0.25/3
+[2024-12-03 13:20:26] Initializing Model
+[2024-12-03 13:20:29] We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
+[2024-12-03 13:21:05] Start eval...
+[2024-12-03 13:21:05] RITUAL Transformation: crop
+[2024-12-03 13:23:30] Experiment directory created at ./logs/llava-v1.5-7b/3.0_1.0_0.25/3
+[2024-12-03 13:23:30] Initializing Model
+[2024-12-03 13:23:33] We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
+[2024-12-03 13:24:04] Start eval...
+[2024-12-03 13:24:04] RITUAL Transformation: crop
+[2024-12-03 13:24:06] [VQA for ritual]
+[2024-12-03 13:24:06] V: ['/data/ce/data/coco/val2014/COCO_val2014_000000310196.jpg']
+[2024-12-03 13:24:06] Q: Is there a snowboard in the image?
+[2024-12-03 13:24:06] A: Yes, there
+[2024-12-03 13:24:06] GT: Yes
+[2024-12-03 13:24:06] TP	FP	TN	FN	
+[2024-12-03 13:24:06] 1	0	0	0
+[2024-12-03 13:24:06] acc: 100.0, precision: 100.0, recall: 100.0, f1: 100.0, yes_ratio: 100.0
+[2024-12-03 13:24:06] ==================================================
+[2024-12-03 13:24:06] RITUAL Transformation: horizontal flip
+[2024-12-03 13:24:06] [VQA for ritual]
+[2024-12-03 13:24:06] V: ['/data/ce/data/coco/val2014/COCO_val2014_000000310196.jpg']
+[2024-12-03 13:24:06] Q: Is there a car in the image?
+[2024-12-03 13:24:06] A: No, there
+[2024-12-03 13:24:06] GT: No
+[2024-12-03 13:24:06] TP	FP	TN	FN	
+[2024-12-03 13:24:06] 1	0	1	0
+[2024-12-03 13:24:06] acc: 100.0, precision: 100.0, recall: 100.0, f1: 100.0, yes_ratio: 50.0
+[2024-12-03 13:24:06] ==================================================
+[2024-12-03 13:24:06] RITUAL Transformation: horizontal flip
+[2024-12-03 13:24:07] [VQA for ritual]
+[2024-12-03 13:24:07] V: ['/data/ce/data/coco/val2014/COCO_val2014_000000310196.jpg']
+[2024-12-03 13:24:07] Q: Is there a person in the image?
+[2024-12-03 13:24:07] A: Yes, there
+[2024-12-03 13:24:07] GT: Yes
+[2024-12-03 13:24:07] TP	FP	TN	FN	
+[2024-12-03 13:24:07] 2	0	1	0
+[2024-12-03 13:24:07] acc: 100.0, precision: 100.0, recall: 100.0, f1: 100.0, yes_ratio: 66.67
+[2024-12-03 13:24:07] ==================================================
+[2024-12-03 13:24:07] RITUAL Transformation: crop
+[2024-12-03 13:24:07] [VQA for ritual]
+[2024-12-03 13:24:07] V: ['/data/ce/data/coco/val2014/COCO_val2014_000000310196.jpg']
+[2024-12-03 13:24:07] Q: Is there a sandwich in the image?
+[2024-12-03 13:24:07] A: No, there
+[2024-12-03 13:24:07] GT: No
+[2024-12-03 13:24:07] TP	FP	TN	FN	
+[2024-12-03 13:24:07] 2	0	2	0
+[2024-12-03 13:24:07] acc: 100.0, precision: 100.0, recall: 100.0, f1: 100.0, yes_ratio: 50.0
+[2024-12-03 13:24:07] ==================================================
+[2024-12-03 13:24:07] RITUAL Transformation: rotation
+[2024-12-03 13:24:07] [VQA for ritual]
+[2024-12-03 13:24:07] V: ['/data/ce/data/coco/val2014/COCO_val2014_000000310196.jpg']
+[2024-12-03 13:24:07] Q: Is there a skis in the image?
+[2024-12-03 13:24:07] A: Yes, there
+[2024-12-03 13:24:07] GT: Yes
+[2024-12-03 13:24:07] TP	FP	TN	FN	
+[2024-12-03 13:24:07] 3	0	2	0
+[2024-12-03 13:24:07] acc: 100.0, precision: 100.0, recall: 100.0, f1: 100.0, yes_ratio: 60.0
+[2024-12-03 13:24:07] ==================================================
+[2024-12-03 13:24:07] RITUAL Transformation: vertical flip
+[2024-12-03 13:24:08] [VQA for ritual]
+[2024-12-03 13:24:08] V: ['/data/ce/data/coco/val2014/COCO_val2014_000000310196.jpg']
+[2024-12-03 13:24:08] Q: Is there a couch in the image?
+[2024-12-03 13:24:08] A: No, there
+[2024-12-03 13:24:08] GT: No
+[2024-12-03 13:24:08] TP	FP	TN	FN	
+[2024-12-03 13:24:08] 3	0	3	0
+[2024-12-03 13:24:08] acc: 100.0, precision: 100.0, recall: 100.0, f1: 100.0, yes_ratio: 50.0
+[2024-12-03 13:24:08] ==================================================
+[2024-12-03 13:24:08] RITUAL Transformation: vertical flip
+[2024-12-03 13:24:08] [VQA for ritual]
+[2024-12-03 13:24:08] V: ['/data/ce/data/coco/val2014/COCO_val2014_000000210789.jpg']
+[2024-12-03 13:24:08] Q: Is there a truck in the image?
+[2024-12-03 13:24:08] A: Yes, there
+[2024-12-03 13:24:08] GT: Yes
+[2024-12-03 13:24:08] TP	FP	TN	FN	
+[2024-12-03 13:24:08] 4	0	3	0
+[2024-12-03 13:24:08] acc: 100.0, precision: 100.0, recall: 100.0, f1: 100.0, yes_ratio: 57.14
+[2024-12-03 13:24:08] ==================================================
+[2024-12-03 13:24:08] RITUAL Transformation: vertical flip
+[2024-12-03 13:24:08] [VQA for ritual]
+[2024-12-03 13:24:08] V: ['/data/ce/data/coco/val2014/COCO_val2014_000000210789.jpg']
+[2024-12-03 13:24:08] Q: Is there a pizza in the image?
+[2024-12-03 13:24:08] A: No, there
+[2024-12-03 13:24:08] GT: No
+[2024-12-03 13:24:08] TP	FP	TN	FN	
+[2024-12-03 13:24:08] 4	0	4	0
+[2024-12-03 13:24:08] acc: 100.0, precision: 100.0, recall: 100.0, f1: 100.0, yes_ratio: 50.0
+[2024-12-03 13:24:08] ==================================================
+[2024-12-03 13:24:08] RITUAL Transformation: crop
+[2024-12-03 13:24:08] [VQA for ritual]
+[2024-12-03 13:24:08] V: ['/data/ce/data/coco/val2014/COCO_val2014_000000210789.jpg']
+[2024-12-03 13:24:08] Q: Is there a person in the image?
+[2024-12-03 13:24:08] A: Yes, there
+[2024-12-03 13:24:08] GT: Yes
+[2024-12-03 13:24:08] TP	FP	TN	FN	
+[2024-12-03 13:24:08] 5	0	4	0
+[2024-12-03 13:24:08] acc: 100.0, precision: 100.0, recall: 100.0, f1: 100.0, yes_ratio: 55.56
+[2024-12-03 13:24:08] ==================================================
+[2024-12-03 13:24:08] RITUAL Transformation: horizontal flip
+[2024-12-03 13:24:09] [VQA for ritual]
+[2024-12-03 13:24:09] V: ['/data/ce/data/coco/val2014/COCO_val2014_000000210789.jpg']
+[2024-12-03 13:24:09] Q: Is there a sink in the image?
+[2024-12-03 13:24:09] A: No, there
+[2024-12-03 13:24:09] GT: No
+[2024-12-03 13:24:09] TP	FP	TN	FN	
+[2024-12-03 13:24:09] 5	0	5	0
+[2024-12-03 13:24:09] acc: 100.0, precision: 100.0, recall: 100.0, f1: 100.0, yes_ratio: 50.0
+[2024-12-03 13:24:09] ==================================================
+[2024-12-03 13:24:09] RITUAL Transformation: crop
+[2024-12-03 13:24:09] [VQA for ritual]
+[2024-12-03 13:24:09] V: ['/data/ce/data/coco/val2014/COCO_val2014_000000210789.jpg']
+[2024-12-03 13:24:09] Q: Is there an umbrella in the image?
+[2024-12-03 13:24:09] A: Yes, there
+[2024-12-03 13:24:09] GT: Yes
+[2024-12-03 13:24:09] TP	FP	TN	FN	
+[2024-12-03 13:24:09] 6	0	5	0
+[2024-12-03 13:24:09] acc: 100.0, precision: 100.0, recall: 100.0, f1: 100.0, yes_ratio: 54.55
+[2024-12-03 13:24:09] ==================================================
+[2024-12-03 13:24:09] RITUAL Transformation: crop
+[2024-12-03 13:24:09] [VQA for ritual]
+[2024-12-03 13:24:09] V: ['/data/ce/data/coco/val2014/COCO_val2014_000000210789.jpg']
+[2024-12-03 13:24:09] Q: Is there a cell phone in the image?
+[2024-12-03 13:24:09] A: Yes, there
+[2024-12-03 13:24:09] GT: No
+[2024-12-03 13:24:09] TP	FP	TN	FN	
+[2024-12-03 13:24:09] 6	1	5	0
+[2024-12-03 13:24:09] acc: 91.67, precision: 85.71, recall: 100.0, f1: 92.31, yes_ratio: 58.33
+[2024-12-03 13:24:09] ==================================================
+[2024-12-03 13:24:10] RITUAL Transformation: gaussian blur
+[2024-12-03 13:24:10] [VQA for ritual]
+[2024-12-03 13:24:10] V: ['/data/ce/data/coco/val2014/COCO_val2014_000000429109.jpg']
+[2024-12-03 13:24:10] Q: Is there a person in the image?
+[2024-12-03 13:24:10] A: Yes, there
+[2024-12-03 13:24:10] GT: Yes
+[2024-12-03 13:24:10] TP	FP	TN	FN	
+[2024-12-03 13:24:10] 7	1	5	0
+[2024-12-03 13:24:10] acc: 92.31, precision: 87.5, recall: 100.0, f1: 93.33, yes_ratio: 61.54
+[2024-12-03 13:24:10] ==================================================
+[2024-12-03 13:24:10] RITUAL Transformation: horizontal flip
+[2024-12-03 13:24:10] [VQA for ritual]
+[2024-12-03 13:24:10] V: ['/data/ce/data/coco/val2014/COCO_val2014_000000429109.jpg']
+[2024-12-03 13:24:10] Q: Is there a sheep in the image?
+[2024-12-03 13:24:10] A: No, there
+[2024-12-03 13:24:10] GT: No
+[2024-12-03 13:24:10] TP	FP	TN	FN	
+[2024-12-03 13:24:10] 7	1	6	0
+[2024-12-03 13:24:10] acc: 92.86, precision: 87.5, recall: 100.0, f1: 93.33, yes_ratio: 57.14
+[2024-12-03 13:24:10] ==================================================
+[2024-12-03 13:24:10] RITUAL Transformation: gaussian blur
+[2024-12-03 13:24:11] [VQA for ritual]
+[2024-12-03 13:24:11] V: ['/data/ce/data/coco/val2014/COCO_val2014_000000429109.jpg']
+[2024-12-03 13:24:11] Q: Is there a bicycle in the image?
+[2024-12-03 13:24:11] A: Yes, there
+[2024-12-03 13:24:11] GT: Yes
+[2024-12-03 13:24:11] TP	FP	TN	FN	
+[2024-12-03 13:24:11] 8	1	6	0
+[2024-12-03 13:24:11] acc: 93.33, precision: 88.89, recall: 100.0, f1: 94.12, yes_ratio: 60.0
+[2024-12-03 13:24:11] ==================================================
+[2024-12-03 13:24:11] RITUAL Transformation: color jitter
+[2024-12-03 13:24:11] [VQA for ritual]
+[2024-12-03 13:24:11] V: ['/data/ce/data/coco/val2014/COCO_val2014_000000429109.jpg']
+[2024-12-03 13:24:11] Q: Is there a broccoli in the image?
+[2024-12-03 13:24:11] A: No, there
+[2024-12-03 13:24:11] GT: No
+[2024-12-03 13:24:11] TP	FP	TN	FN	
+[2024-12-03 13:24:11] 8	1	7	0
+[2024-12-03 13:24:11] acc: 93.75, precision: 88.89, recall: 100.0, f1: 94.12, yes_ratio: 56.25
+[2024-12-03 13:24:11] ==================================================
+[2024-12-03 13:24:11] RITUAL Transformation: horizontal flip
+[2024-12-03 13:24:11] [VQA for ritual]
+[2024-12-03 13:24:11] V: ['/data/ce/data/coco/val2014/COCO_val2014_000000429109.jpg']
+[2024-12-03 13:24:11] Q: Is there a car in the image?
+[2024-12-03 13:24:11] A: No, there
+[2024-12-03 13:24:11] GT: Yes
+[2024-12-03 13:24:11] TP	FP	TN	FN	
+[2024-12-03 13:24:11] 8	1	7	1
+[2024-12-03 13:24:11] acc: 88.24, precision: 88.89, recall: 88.89, f1: 88.89, yes_ratio: 52.94
+[2024-12-03 13:24:11] ==================================================
+[2024-12-03 13:24:11] RITUAL Transformation: horizontal flip
+[2024-12-03 13:24:12] [VQA for ritual]
+[2024-12-03 13:24:12] V: ['/data/ce/data/coco/val2014/COCO_val2014_000000429109.jpg']
+[2024-12-03 13:24:12] Q: Is there a tennis racket in the image?
+[2024-12-03 13:24:12] A: No, there
+[2024-12-03 13:24:12] GT: No
+[2024-12-03 13:24:12] TP	FP	TN	FN	
+[2024-12-03 13:24:12] 8	1	8	1
+[2024-12-03 13:24:12] acc: 88.89, precision: 88.89, recall: 88.89, f1: 88.89, yes_ratio: 50.0
+[2024-12-03 13:24:12] ==================================================
+[2024-12-03 13:24:12] RITUAL Transformation: horizontal flip
+[2024-12-03 13:24:12] [VQA for ritual]
+[2024-12-03 13:24:12] V: ['/data/ce/data/coco/val2014/COCO_val2014_000000211674.jpg']
+[2024-12-03 13:24:12] Q: Is there a person in the image?
+[2024-12-03 13:24:12] A: Yes, there
+[2024-12-03 13:24:12] GT: Yes
+[2024-12-03 13:24:12] TP	FP	TN	FN	
+[2024-12-03 13:24:12] 9	1	8	1
+[2024-12-03 13:24:12] acc: 89.47, precision: 90.0, recall: 90.0, f1: 90.0, yes_ratio: 52.63
+[2024-12-03 13:24:12] ==================================================
+[2024-12-03 13:24:12] RITUAL Transformation: vertical flip
+[2024-12-03 13:24:12] [VQA for ritual]
+[2024-12-03 13:24:12] V: ['/data/ce/data/coco/val2014/COCO_val2014_000000211674.jpg']
+[2024-12-03 13:24:12] Q: Is there a teddy bear in the image?
+[2024-12-03 13:24:12] A: No, there
+[2024-12-03 13:24:12] GT: No
+[2024-12-03 13:24:12] TP	FP	TN	FN	
+[2024-12-03 13:24:12] 9	1	9	1
+[2024-12-03 13:24:12] acc: 90.0, precision: 90.0, recall: 90.0, f1: 90.0, yes_ratio: 50.0
+[2024-12-03 13:24:12] ==================================================
+[2024-12-03 13:24:12] RITUAL Transformation: vertical flip
+[2024-12-03 13:24:13] [VQA for ritual]
+[2024-12-03 13:24:13] V: ['/data/ce/data/coco/val2014/COCO_val2014_000000211674.jpg']
+[2024-12-03 13:24:13] Q: Is there a potted plant in the image?
+[2024-12-03 13:24:13] A: Yes, there
+[2024-12-03 13:24:13] GT: Yes
+[2024-12-03 13:24:13] TP	FP	TN	FN	
+[2024-12-03 13:24:13] 10	1	9	1
+[2024-12-03 13:24:13] acc: 90.48, precision: 90.91, recall: 90.91, f1: 90.91, yes_ratio: 52.38
+[2024-12-03 13:24:13] ==================================================
+[2024-12-03 13:24:13] RITUAL Transformation: gaussian blur
+[2024-12-03 13:24:13] [VQA for ritual]
+[2024-12-03 13:24:13] V: ['/data/ce/data/coco/val2014/COCO_val2014_000000211674.jpg']
+[2024-12-03 13:24:13] Q: Is there a broccoli in the image?
+[2024-12-03 13:24:13] A: No, there
+[2024-12-03 13:24:13] GT: No
+[2024-12-03 13:24:13] TP	FP	TN	FN	
+[2024-12-03 13:24:13] 10	1	10	1
+[2024-12-03 13:24:13] acc: 90.91, precision: 90.91, recall: 90.91, f1: 90.91, yes_ratio: 50.0
+[2024-12-03 13:24:13] ==================================================
+[2024-12-03 13:24:13] RITUAL Transformation: gaussian blur
+[2024-12-03 13:24:13] [VQA for ritual]
+[2024-12-03 13:24:13] V: ['/data/ce/data/coco/val2014/COCO_val2014_000000211674.jpg']
+[2024-12-03 13:24:13] Q: Is there a car in the image?
+[2024-12-03 13:24:13] A: No, there
+[2024-12-03 13:24:13] GT: Yes
+[2024-12-03 13:24:13] TP	FP	TN	FN	
+[2024-12-03 13:24:13] 10	1	10	2
+[2024-12-03 13:24:13] acc: 86.96, precision: 90.91, recall: 83.33, f1: 86.96, yes_ratio: 47.83
+[2024-12-03 13:24:13] ==================================================
+[2024-12-03 13:24:13] RITUAL Transformation: horizontal flip

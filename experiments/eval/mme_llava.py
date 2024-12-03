@@ -145,7 +145,7 @@ def eval_model(args):
                         top_p=args.top_p,
                         top_k=args.top_k,
                         max_new_tokens=1024,
-                        use_cache=False,
+                        use_cache=True,
                         use_ritual=False,
                         use_vcd=False,
                         use_m3id=False,

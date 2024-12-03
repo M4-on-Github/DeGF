@@ -1,0 +1,38 @@
+[2024-12-03 13:24:45] Experiment directory created at ./logs/instructblip/3.0_1.0_0.25
+[2024-12-03 13:24:45] Initializing Model
+[2024-12-03 13:25:11] freeze vision encoder
+[2024-12-03 13:25:55] load checkpoint from https://storage.googleapis.com/sfr-vision-language-research/LAVIS/models/InstructBLIP/instruct_blip_vicuna7b_trimmed.pth
+[2024-12-03 13:26:06] Start eval...
+[2024-12-03 13:26:07] RITUAL Transformation: crop
+[2024-12-03 13:30:52] Experiment directory created at ./logs/instructblip/3.0_1.0_0.25
+[2024-12-03 13:30:52] Initializing Model
+[2024-12-03 13:31:17] freeze vision encoder
+[2024-12-03 13:31:57] load checkpoint from https://storage.googleapis.com/sfr-vision-language-research/LAVIS/models/InstructBLIP/instruct_blip_vicuna7b_trimmed.pth
+[2024-12-03 13:32:05] Start eval...
+[2024-12-03 13:32:06] RITUAL Transformation: crop
+[2024-12-03 13:32:46] Experiment directory created at ./logs/instructblip/3.0_1.0_0.25
+[2024-12-03 13:32:46] Initializing Model
+[2024-12-03 13:33:12] freeze vision encoder
+[2024-12-03 13:33:52] load checkpoint from https://storage.googleapis.com/sfr-vision-language-research/LAVIS/models/InstructBLIP/instruct_blip_vicuna7b_trimmed.pth
+[2024-12-03 13:34:04] Start eval...
+[2024-12-03 13:34:05] RITUAL Transformation: crop
+[2024-12-03 13:34:08] [VQA for ritual]
+[2024-12-03 13:34:08] V: /data/ce/data/coco/val2014/COCO_val2014_000000310196.jpg
+[2024-12-03 13:34:08] Q: Is there a snowboard in the image?
+[2024-12-03 13:34:08] A: Yes, there is a snowboard in the image, as a person is riding down a snowy slope.
+[2024-12-03 13:34:08] GT: Yes
+[2024-12-03 13:34:08] TP	FP	TN	FN	
+[2024-12-03 13:34:08] 1	0	0	0
+[2024-12-03 13:34:08] acc: 100.0, precision: 100.0, recall: 100.0, f1: 100.0, yes_ratio: 100.0
+[2024-12-03 13:34:08] ==================================================
+[2024-12-03 13:34:08] RITUAL Transformation: horizontal flip
+[2024-12-03 13:34:09] [VQA for ritual]
+[2024-12-03 13:34:09] V: /data/ce/data/coco/val2014/COCO_val2014_000000310196.jpg
+[2024-12-03 13:34:09] Q: Is there a car in the image?
+[2024-12-03 13:34:09] A: No, there is no car in the image.
+[2024-12-03 13:34:09] GT: No
+[2024-12-03 13:34:09] TP	FP	TN	FN	
+[2024-12-03 13:34:09] 1	0	1	0
+[2024-12-03 13:34:09] acc: 100.0, precision: 100.0, recall: 100.0, f1: 100.0, yes_ratio: 50.0
+[2024-12-03 13:34:09] ==================================================
+[2024-12-03 13:34:09] RITUAL Transformation: horizontal flip

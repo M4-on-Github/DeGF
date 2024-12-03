@@ -5,12 +5,12 @@ dataset_name="coco" # coco | aokvqa | gqa
 type="random" # random | popular | adversarial
 
 # llava
-model="llava"
-model_path="/data/ce/model/llava-v1.5-7b"
+# model="llava"
+# model_path="/data/ce/model/llava-v1.5-7b"
 
 # instructblip
-# model="instructblip"
-# model_path=None
+model="instructblip"
+model_path=None
 
 pope_path="/data/ce/data/POPE/${dataset_name}/${dataset_name}_pope_${type}.json"
 data_path="/data/ce/data/coco/val2014"

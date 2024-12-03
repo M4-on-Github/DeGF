@@ -1,0 +1,121 @@
+[2024-12-03 13:35:33] Experiment directory created at ./logs/chair/llava-v1.5-7b/1
+[2024-12-03 13:35:33] Initializing Model
+[2024-12-03 13:35:36] We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
+[2024-12-03 13:36:11] Start eval...
+[2024-12-03 13:36:27] [VQA for ritual]
+[2024-12-03 13:36:27] V: ['/data/ce/data/coco/val2014/COCO_val2014_000000143275.jpg']
+[2024-12-03 13:36:27] Q: Please describe this image in detail.
+[2024-12-03 13:36:27] D: The image features a group of people on skis enjoying a winter day on the side of a mountain. There are three people visible in the scene, each with a pair of skis visible below them on the snow-covered slope. They are positioned close to each other, likely taking a break or possibly
+[2024-12-03 13:36:35] [VQA for ritual]
+[2024-12-03 13:36:35] V: ['/data/ce/data/coco/val2014/COCO_val2014_000000143275.jpg']
+[2024-12-03 13:36:35] Q: Please describe this image in detail.
+[2024-12-03 13:36:35] A: The image captures a group of three snowboarders enjoying their time on a snow-covered slope. They are scattered across the slope, with one snowboarder positioned towards the left, another in the middle, and the third one on the right side. The snowboarders are wearing green v
+[2024-12-03 13:36:35] ==================================================
+[2024-12-03 13:36:36] [VQA for ritual]
+[2024-12-03 13:36:36] V: ['/data/ce/data/coco/val2014/COCO_val2014_000000106793.jpg']
+[2024-12-03 13:36:36] Q: Please describe this image in detail.
+[2024-12-03 13:36:36] D: The image depicts a young girl and a little boy lying together in a cozy, comfortable environment on a bed. They appear to be a brother and sister who are enjoying some leftover donuts as well. The donuts are positioned in front of them, placed on a surface close to
+[2024-12-03 13:36:44] [VQA for ritual]
+[2024-12-03 13:36:44] V: ['/data/ce/data/coco/val2014/COCO_val2014_000000106793.jpg']
+[2024-12-03 13:36:44] Q: Please describe this image in detail.
+[2024-12-03 13:36:44] A: The image features a cozy scene of two children, a little girl and a little boy, lying in bed together under a striped blanket. They appear to be enjoying their time, possibly watching a movie or playing with stuffed animals. 
+
+There are several stuffed animals in the scene, including
+[2024-12-03 13:36:44] ==================================================
+[2024-12-03 13:36:45] [VQA for ritual]
+[2024-12-03 13:36:45] V: ['/data/ce/data/coco/val2014/COCO_val2014_000000184338.jpg']
+[2024-12-03 13:36:45] Q: Please describe this image in detail.
+[2024-12-03 13:36:45] D: The scene displays a unique type of antique, vintage truck parked on a dirt lot, with a part of a small building visible in the background. Old-looking window sealing pieces, or window weights, have been used on the side of the truck to prevent potentially dangerous conditions if the
+[2024-12-03 13:37:00] Experiment directory created at ./logs/chair/llava-v1.5-7b/1
+[2024-12-03 13:37:00] Initializing Model
+[2024-12-03 13:37:03] We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
+[2024-12-03 13:37:38] Start eval...
+[2024-12-03 13:37:53] [VQA for ritual]
+[2024-12-03 13:37:53] V: ['/data/ce/data/coco/val2014/COCO_val2014_000000143275.jpg']
+[2024-12-03 13:37:53] Q: Please describe this image in detail.
+[2024-12-03 13:37:53] D: The image features a group of people on skis enjoying a winter day on the side of a mountain. There are three people visible in the scene, each with a pair of skis visible below them on the snow-covered slope. They are positioned close to each other, likely taking a break or possibly
+[2024-12-03 13:38:01] [VQA for ritual]
+[2024-12-03 13:38:01] V: ['/data/ce/data/coco/val2014/COCO_val2014_000000143275.jpg']
+[2024-12-03 13:38:01] Q: Please describe this image in detail.
+[2024-12-03 13:38:01] A: The image captures a group of three snowboarders enjoying their time on a snow-covered slope. They are scattered across the slope, with one snowboarder positioned towards the left, another in the middle, and the third one on the right side. The snowboarders are wearing their g
+[2024-12-03 13:38:01] ==================================================
+[2024-12-03 13:38:03] [VQA for ritual]
+[2024-12-03 13:38:03] V: ['/data/ce/data/coco/val2014/COCO_val2014_000000106793.jpg']
+[2024-12-03 13:38:03] Q: Please describe this image in detail.
+[2024-12-03 13:38:03] D: The image depicts a young girl and a little boy lying together in a cozy, comfortable environment on a bed. They appear to be a brother and sister who are enjoying some leftover donuts as well. The donuts are positioned in front of them, placed on a surface close to
+[2024-12-03 13:38:10] [VQA for ritual]
+[2024-12-03 13:38:10] V: ['/data/ce/data/coco/val2014/COCO_val2014_000000106793.jpg']
+[2024-12-03 13:38:10] Q: Please describe this image in detail.
+[2024-12-03 13:38:10] A: The image features a cozy scene of two children, a little girl and a little boy, lying in bed together under a striped blanket. They appear to be resting or possibly watching something, as there are several remotes scattered around them. A stuffed animal, possibly a teddy bear, is also
+[2024-12-03 13:38:10] ==================================================
+[2024-12-03 13:38:12] [VQA for ritual]
+[2024-12-03 13:38:12] V: ['/data/ce/data/coco/val2014/COCO_val2014_000000184338.jpg']
+[2024-12-03 13:38:12] Q: Please describe this image in detail.
+[2024-12-03 13:38:12] D: The scene displays a unique type of antique, vintage truck parked on a dirt lot, with a part of a small building visible in the background. Old-looking window sealing pieces, or window weights, have been used on the side of the truck to prevent potentially dangerous conditions if the
+[2024-12-03 13:38:19] [VQA for ritual]
+[2024-12-03 13:38:19] V: ['/data/ce/data/coco/val2014/COCO_val2014_000000184338.jpg']
+[2024-12-03 13:38:19] Q: Please describe this image in detail.
+[2024-12-03 13:38:19] A: The image features a blue and white bus painted with religious and nature themes, giving it a unique and eye-catching appearance. The bus is parked in a desert-like setting, surrounded by a dirt road and a building in the background. The artwork on the bus is quite intricate, making
+[2024-12-03 13:38:19] ==================================================
+[2024-12-03 13:38:21] [VQA for ritual]
+[2024-12-03 13:38:21] V: ['/data/ce/data/coco/val2014/COCO_val2014_000000536741.jpg']
+[2024-12-03 13:38:21] Q: Please describe this image in detail.
+[2024-12-03 13:38:21] D: The image features an older man in a suit jacket and tie, standing near a wood-paneled kitchen. He is holding two wine bottles, one with liquid remaining and the other with a small amount of liquid. To his side, he is holding two more wine bottles that likely need to be opened
+[2024-12-03 13:38:29] [VQA for ritual]
+[2024-12-03 13:38:29] V: ['/data/ce/data/coco/val2014/COCO_val2014_000000536741.jpg']
+[2024-12-03 13:38:29] Q: Please describe this image in detail.
+[2024-12-03 13:38:29] A: The image features a smiling man dressed in a suit and tie, holding two wine bottles in his hands. He appears to be posing for a picture, possibly at a wine tasting event or a social gathering. The man is wearing a red tie, which adds a pop of color to the
+[2024-12-03 13:38:29] ==================================================
+[2024-12-03 13:38:30] [VQA for ritual]
+[2024-12-03 13:38:30] V: ['/data/ce/data/coco/val2014/COCO_val2014_000000308793.jpg']
+[2024-12-03 13:38:30] Q: Please describe this image in detail.
+[2024-12-03 13:38:30] D: A man is hiking up a hill of snow, armed with skis, ski poles, and snowshoes. He appears to be preparing for a skiing or snowboarding adventure. The combination of equipment suggests that he may be facing steep, unprepared trails or snow
+[2024-12-03 13:38:38] [VQA for ritual]
+[2024-12-03 13:38:38] V: ['/data/ce/data/coco/val2014/COCO_val2014_000000308793.jpg']
+[2024-12-03 13:38:38] Q: Please describe this image in detail.
+[2024-12-03 13:38:38] A: The image features two snowboarders on a snow-covered slope, making their way up the mountain. One snowboarder is riding a snowboard, while the other is walking up the slope with skis on. Both individuals are wearing backpacks, with one backpack being larger and placed on
+[2024-12-03 13:38:38] ==================================================
+[2024-12-03 13:38:39] [VQA for ritual]
+[2024-12-03 13:38:39] V: ['/data/ce/data/coco/val2014/COCO_val2014_000000118465.jpg']
+[2024-12-03 13:38:39] Q: Please describe this image in detail.
+[2024-12-03 13:38:39] D: The image features a little girl standing inside a wooden fenced-in pen. The girl is positioned near the fence and feeding a giraffe by hand. The plump giraffe leans over the fence to reach her, appearing to be eager to reach the caregiver's hand
+[2024-12-03 13:38:47] [VQA for ritual]
+[2024-12-03 13:38:47] V: ['/data/ce/data/coco/val2014/COCO_val2014_000000118465.jpg']
+[2024-12-03 13:38:47] Q: Please describe this image in detail.
+[2024-12-03 13:38:47] A: The image features a young girl feeding a giraffe through a wooden fence. The giraffe is standing on the other side of the fence, eagerly reaching its long neck towards the girl. The girl is holding food in her hand, which she is offering to the giraffe.
+[2024-12-03 13:38:47] ==================================================
+[2024-12-03 13:38:49] [VQA for ritual]
+[2024-12-03 13:38:49] V: ['/data/ce/data/coco/val2014/COCO_val2014_000000239010.jpg']
+[2024-12-03 13:38:49] Q: Please describe this image in detail.
+[2024-12-03 13:38:49] D: The image features a unique display of decorations and craftsmanship, with a centerpiece of chairs, dining tables, and potted plants arranged within a room. There is a stuffed animal, possibly an animal hallucination of a ram or sheep, sitting in one of the chairs at
+[2024-12-03 13:38:56] [VQA for ritual]
+[2024-12-03 13:38:56] V: ['/data/ce/data/coco/val2014/COCO_val2014_000000239010.jpg']
+[2024-12-03 13:38:56] Q: Please describe this image in detail.
+[2024-12-03 13:38:56] A: The image features a sheep standing in the grass, surrounded by a variety of flowers and potted plants. The sheep is positioned in the center of the scene, with the flowers and plants spread out around it. 
+
+In the background, there are several chairs arranged on both sides of the grassy area
+[2024-12-03 13:38:56] ==================================================
+[2024-12-03 13:38:58] [VQA for ritual]
+[2024-12-03 13:38:58] V: ['/data/ce/data/coco/val2014/COCO_val2014_000000021644.jpg']
+[2024-12-03 13:38:58] Q: Please describe this image in detail.
+[2024-12-03 13:38:58] D: The image features a parking lot with three buses parked in the lot. One bus is located in the middle, and two others are on either side of the space. The vehicles appear to be awaiting passengers or preparing to depart. 
+
+The parking lot is a circular arrangement, with a
+[2024-12-03 13:39:05] [VQA for ritual]
+[2024-12-03 13:39:05] V: ['/data/ce/data/coco/val2014/COCO_val2014_000000021644.jpg']
+[2024-12-03 13:39:05] Q: Please describe this image in detail.
+[2024-12-03 13:39:05] A: The image features a bus station where several buses are parked next to each other in a parking lot. There are five buses visible in the scene, with some of them being city buses. The buses are arranged in a line, with one bus parked closer to the left side of the image
+[2024-12-03 13:39:05] ==================================================
+[2024-12-03 13:39:07] [VQA for ritual]
+[2024-12-03 13:39:07] V: ['/data/ce/data/coco/val2014/COCO_val2014_000000281782.jpg']
+[2024-12-03 13:39:07] Q: Please describe this image in detail.
+[2024-12-03 13:39:07] D: The scene depicts a man and a young child playing outside on a beautiful day. The older gentleman looks on as the young boy flies a kite in the field. The kite is soaring high in the blue sky, reaching almost to their eye-level. They are surrounded by a green lawn
+[2024-12-03 13:39:15] [VQA for ritual]
+[2024-12-03 13:39:15] V: ['/data/ce/data/coco/val2014/COCO_val2014_000000281782.jpg']
+[2024-12-03 13:39:15] Q: Please describe this image in detail.
+[2024-12-03 13:39:15] A: The image features a man flying a colorful kite in a grassy field, with a young boy walking beside him. The man is holding the kite string, while the boy watches and learns from the experience. The scene is set in a park, with a building visible in the background.
+[2024-12-03 13:39:15] ==================================================
+[2024-12-03 13:39:16] [VQA for ritual]
+[2024-12-03 13:39:16] V: ['/data/ce/data/coco/val2014/COCO_val2014_000000033243.jpg']
+[2024-12-03 13:39:16] Q: Please describe this image in detail.
+[2024-12-03 13:39:16] D: The image showcases a clean and well-maintained bathroom with a white color theme. The focal point of the scene is a bathtub, which occupies the right-hand side of the bathroom. Across from the tub, a double sink with two separate faucets can be seen

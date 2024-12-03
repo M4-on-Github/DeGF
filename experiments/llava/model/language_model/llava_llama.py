@@ -73,9 +73,9 @@ class LlavaLlamaForCausalLM(LlamaForCausalLM, LlavaMetaForCausalLM):
         use_vcd: Optional[bool] = None,
         use_m3id: Optional[bool] = None,
         use_diffusion: Optional[bool] = None,
-        ritual_alpha_pos: Optional[torch.FloatTensor] = None,
-        ritual_alpha_neg: Optional[torch.FloatTensor] = None,
-        ritual_beta: Optional[torch.FloatTensor] = None,
+        degf_alpha_pos: Optional[torch.FloatTensor] = None,
+        degf_alpha_neg: Optional[torch.FloatTensor] = None,
+        degf_beta: Optional[torch.FloatTensor] = None,
         return_dict: Optional[bool] = None,
         tokenizer=None,
     ) -> Union[Tuple, CausalLMOutputWithPast]:
