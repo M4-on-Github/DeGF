@@ -1,0 +1,22 @@
+{
+    "paths": {
+        "model_path": "/data/$USER/llava-v1.5-7b",
+        "model_base": null,
+        "image_folder": "CASTOR/shipwreck_wiki_images/sorted_images",
+        "question_file": "CASTOR/shipwreck_wiki_images/questions.jsonl",
+        "answers_file": "/data/$USER/castor_results/answers.jsonl"
+    },
+    "hyperparameters": {
+        "conv_mode": "llava_v1",
+        "use_diffusion": false,
+        "sd_desc_prompt": "Describe this vessel image in detail: its type, condition, damage state, and surroundings.",
+        "degf_alpha_pos": 3.0,
+        "degf_alpha_neg": 1.0,
+        "degf_beta": 0.1,
+        "temperature": 1.0,
+        "top_p": 1.0,
+        "top_k": null,
+        "seed": 42,
+        "max_new_tokens": 1024
+    }
+}
