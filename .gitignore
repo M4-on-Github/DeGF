@@ -1,0 +1,53 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# Virtual environments
+.venv/
+venv/
+env/
+.conda/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# Model weights and large binaries (store in /data/$USER/ on cluster)
+*.bin
+*.safetensors
+*.pt
+*.pth
+*.ckpt
+*.h5
+
+# Inference results (written to /data/$USER/castor_results/ on cluster)
+answers_*.jsonl
+castor_results/
+
+# Shipwreck image dataset (transfer separately, not via git)
+CASTOR/shipwreck_wiki_images/sorted_images/
+
+# HuggingFace / torch cache
+.cache/
+
+# Apptainer container image (stored in /data/$USER/ on cluster)
+*.sif
+*.sif.def.sha256
+
+# SLURM logs (written at runtime)
+logs/
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*~
