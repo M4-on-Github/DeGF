@@ -81,6 +81,14 @@ try:
 except Exception:
     pass
 
+# ── Device selection ─────────────────────────────────────────────────────────
+if not torch.cuda.is_available():
+    print("ERROR: CUDA not available — this job requires a GPU. Exiting.", flush=True)
+    sys.exit(1)
+_DEVICE = "cuda"
+_gpu = torch.cuda.get_device_properties(0)
+print(f"Device     : {_gpu.name}  ({_gpu.total_memory // 1024**2} MiB)", flush=True)
+
 # ── Path setup ────────────────────────────────────────────────────────────────
 _HERE = os.path.dirname(os.path.abspath(__file__))
 _REPO = os.path.dirname(_HERE)
@@ -156,9 +164,9 @@ def _run_generate(model, input_ids, image_tensor, image_neg,
     with torch.inference_mode(), torch.no_grad():
         output_ids, _ = model.generate(
             input_ids,
-            images=image_tensor.unsqueeze(0).half().cuda(),
+            images=image_tensor.unsqueeze(0).half().to(_DEVICE),
             images_pos=None,
-            images_neg=(image_neg.unsqueeze(0).half().cuda()
+            images_neg=(image_neg.unsqueeze(0).half().to(_DEVICE)
                         if image_neg is not None else None),
             do_sample=True,
             temperature=hp["temperature"],

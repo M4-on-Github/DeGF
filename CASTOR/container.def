@@ -1,15 +1,26 @@
 Bootstrap: docker
 From: pytorch/pytorch:2.0.1-cuda11.7-cudnn8-devel
 
-# Base image already has: Python 3.10, torch 2.0.1+cu117, torchvision, torchaudio.
-# We only install the remaining packages here.
+# Base image already has: Python 3.10, torch 2.0.1+cu117, torchaudio.
+# torchvision is re-pinned explicitly below because the base image version
+# can vary across docker layer rebuilds.
 #
 # INSTALL ORDER MATTERS:
-#   1. transformers + tokenizers pinned FIRST so peft cannot upgrade them.
-#   2. peft 0.4.0 is the last release that allows transformers>=4.28 (not >=4.35).
-#   3. diffusers capped at 0.21.4 for torch 2.0.1 autocast compatibility.
+#   1. torchvision pinned first so nothing can drag in a conflicting torch.
+#   2. transformers + tokenizers pinned before peft so peft cannot upgrade them.
+#   3. peft 0.4.0 is the last release that allows transformers>=4.28 (not >=4.35).
+#   4. diffusers capped at 0.21.4 for torch 2.0.1 autocast compatibility.
+#   5. xformers attempted last (optional) — failure is non-fatal, skipped with a warning.
 
 %post
+    # ── 0. Ensure 'python' resolves (base image may only have python3) ────────
+    command -v python > /dev/null 2>&1 || \
+        ln -sf "$(command -v python3)" /usr/local/bin/python
+
+    # ── 1. torchvision — must match torch 2.0.1+cu117 ────────────────────────
+    pip install --no-cache-dir "torchvision==0.15.2"
+
+    # ── 2. Core LLM stack (order-sensitive) ───────────────────────────────────
     pip install --no-cache-dir \
         "transformers==4.31.0" \
         "tokenizers==0.13.3" \
@@ -20,8 +31,13 @@ From: pytorch/pytorch:2.0.1-cuda11.7-cudnn8-devel
         "peft==0.4.0" \
         "accelerate==0.21.0"
 
+    # ── 3. bitsandbytes — GPU quantization (4/8-bit) ─────────────────────────
+    # 0.41.0 is the last release tested against torch 2.0.1; 0.42+ expects
+    # torch 2.1 internals. --prefer-binary skips source build on CUDA mismatch.
+    pip install --no-cache-dir --prefer-binary "bitsandbytes==0.41.0"
+
+    # ── 4. Diffusion + vision stack ───────────────────────────────────────────
     pip install --no-cache-dir \
-        "bitsandbytes==0.41.0" \
         "diffusers==0.21.4" \
         "einops==0.6.1" \
         "einops-exts==0.0.4" \
@@ -45,22 +61,57 @@ From: pytorch/pytorch:2.0.1-cuda11.7-cudnn8-devel
         "tiktoken>=0.4" \
         "nltk>=3.7"
 
-    # Verify the critical pins survived the install
+    # ── 5. xformers — memory-efficient attention (optional) ───────────────────
+    # Reduces LLaVA 7B peak VRAM by ~20-30% via fused attention kernels.
+    # Non-fatal: if the cu117 prebuilt wheel is unavailable the build continues.
+    pip install --no-cache-dir \
+        "xformers==0.0.21" \
+        --extra-index-url https://download.pytorch.org/whl/cu117 \
+        || echo "[WARN] xformers install failed — running without memory-efficient attention"
+
+    # ── Version checks ────────────────────────────────────────────────────────
     python -c "
-import tokenizers, transformers, peft
+import tokenizers, transformers, peft, torchvision, torch
 assert tokenizers.__version__.startswith('0.13'), \
     f'tokenizers upgraded to {tokenizers.__version__} — breaks transformers 4.31'
 assert transformers.__version__ == '4.31.0', \
     f'transformers is {transformers.__version__} instead of 4.31.0'
 assert peft.__version__.startswith('0.4'), \
     f'peft is {peft.__version__} instead of 0.4.x'
+assert torchvision.__version__ == '0.15.2', \
+    f'torchvision is {torchvision.__version__} instead of 0.15.2'
 print('Version checks passed.')
+print(f'  torch       {torch.__version__}')
+print(f'  torchvision {torchvision.__version__}')
+print(f'  CUDA        {torch.version.cuda}  (GPU checked at runtime, not build time)')
 "
 
 %environment
+    # ── Python / conda PATH ───────────────────────────────────────────────────
+    # Apptainer does not inherit the Docker base image's PATH at runtime.
+    export PATH=/opt/conda/bin:$PATH
     export PYTHONUNBUFFERED=1
     export TOKENIZERS_PARALLELISM=false
+    export BITSANDBYTES_NOWELCOME=1
+
+    # ── GPU memory management ─────────────────────────────────────────────────
+    # Limits the maximum block size the CUDA allocator will split, reducing
+    # fragmentation OOM errors on long jobs with repeated alloc/free cycles.
+    export PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:512
+
+    # ── CPU thread hygiene ────────────────────────────────────────────────────
+    # Prevents each worker from spawning O(cores) OpenMP threads; critical on
+    # shared cluster nodes where oversubscription stalls the GPU pipeline.
+    export OMP_NUM_THREADS=1
+    export MKL_NUM_THREADS=1
+
+    # ── bitsandbytes CUDA library path ────────────────────────────────────────
+    # Apptainer --nv bind-mounts host CUDA libs; add the standard path so
+    # bitsandbytes can locate libcuda.so without relying on ldconfig.
+    export LD_LIBRARY_PATH=/usr/local/cuda/lib64:${LD_LIBRARY_PATH}
 
 %labels
     Project CASTOR
     Base pytorch/pytorch:2.0.1-cuda11.7-cudnn8-devel
+    torch 2.0.1
+    torchvision 0.15.2

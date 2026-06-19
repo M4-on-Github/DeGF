@@ -2,34 +2,39 @@
 # ─────────────────────────────────────────────────────────────────────────────
 # CASTOR — SLURM batch job for pleiades (AART Lab, head1.condo.cs.cmu.edu)
 #
+# Do NOT call this file directly with sbatch — use CASTOR/submit.sh instead.
+# submit.sh creates /data/$USER/logs/ before sbatch opens the log file.
+#
 # Submit from ~/DeGF/:
-#   sbatch CASTOR/submit_job.sh                   # baseline
-#   sbatch CASTOR/submit_job.sh --use-diffusion   # DeGF run
+#   bash CASTOR/submit.sh                  # baseline
+#   bash CASTOR/submit.sh --use-diffusion  # DeGF run
 #
 # Monitor:
 #   squeue -u $USER
-#   tail -f logs/castor_<JOBID>.out
+#   tail -f /data/$USER/logs/castor_<JOBID>.out
 #
 # Interactive debug:
 #   srun -p pleiades --time=1:00:00 --cpus-per-task=4 --gpus=1 --mem=40G --pty bash
 #   cd ~/DeGF
-#   apptainer build --fakeroot /data/$USER/castor.sif CASTOR/container.def
-#   apptainer exec --nv --bind /data/$USER:/data/$USER /data/$USER/castor.sif \
-#       python CASTOR/run_inference.py --use-diffusion
+#   apptainer exec --containall --nv \
+#       --bind /data/$USER:/data/$USER --bind ~/DeGF:~/DeGF --bind /tmp:/tmp \
+#       /data/$USER/castor.sif /opt/conda/bin/python3 CASTOR/run_inference.py
 # ─────────────────────────────────────────────────────────────────────────────
 #SBATCH -p pleiades
 #SBATCH --gpus=1
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=40G
 #SBATCH --time=12:00:00
-#SBATCH -o logs/castor_%j.out
-#SBATCH -e logs/castor_%j.err
 #SBATCH -J castor
+#SBATCH --exclude=pleiades-1-3
+# NOTE: --output and --error are set by CASTOR/submit.sh to /data/$USER/logs/
 
 set -e
-REPO="$(cd "$(dirname "$0")/.." && pwd)"
+# SLURM_SUBMIT_DIR is the directory where sbatch was called (~/DeGF/).
+# Avoids relying on $0 path resolution which can vary across SLURM versions.
+REPO="${SLURM_SUBMIT_DIR:-$(cd "$(dirname "$0")/.." && pwd)}"
 cd "$REPO"
-mkdir -p logs
+mkdir -p "/data/$USER/logs"
 
 JOB_START=$SECONDS
 
@@ -68,14 +73,28 @@ else
     echo "[$(date)] Container up-to-date (hash: $DEF_HASH), skipping build."
 fi
 
+# --containall stops the cluster's apptainer.conf from bind-mounting the host
+# /opt over the container's /opt/conda. We then add back only what's needed.
+# --env passes shell variables that --containall/--cleanenv would otherwise strip.
+APPTAINER_BASE="apptainer exec --containall --nv \
+    --pwd $REPO \
+    --env USER=$USER \
+    --env HOME=$HOME \
+    --env HF_HOME=$HF_HOME \
+    --env TRANSFORMERS_CACHE=$TRANSFORMERS_CACHE \
+    --env TORCH_HOME=$TORCH_HOME \
+    --bind /tmp:/tmp \
+    --bind $REPO:$REPO \
+    --bind $DATA_DIR:$DATA_DIR"
+PYTHON=/opt/conda/bin/python3
+
+echo "[$(date)] Container Python: $PYTHON"
+
 # ── Download LLaVA-1.5-7B if not already present ─────────────────────────────
 MODEL_DIR="$DATA_DIR/llava-v1.5-7b"
 if [ ! -d "$MODEL_DIR" ] || [ -z "$(ls -A "$MODEL_DIR" 2>/dev/null)" ]; then
     echo "[$(date)] Downloading LLaVA-1.5-7B → $MODEL_DIR ..."
-    apptainer exec \
-        --bind "$DATA_DIR:$DATA_DIR" \
-        "$SIF" \
-        python -c "
+    $APPTAINER_BASE "$SIF" $PYTHON -c "
 from huggingface_hub import snapshot_download
 snapshot_download(
     'liuhaotian/llava-v1.5-7b',
@@ -90,12 +109,7 @@ else
 fi
 
 # ── Run inference ─────────────────────────────────────────────────────────────
-time apptainer exec \
-    --nv \
-    --bind "$REPO:$REPO" \
-    --bind "$DATA_DIR:$DATA_DIR" \
-    "$SIF" \
-    python "$REPO/CASTOR/run_inference.py" "$@"
+time $APPTAINER_BASE "$SIF" $PYTHON "$REPO/CASTOR/run_inference.py" "$@"
 
 ELAPSED=$(( SECONDS - JOB_START ))
 echo "=========================================="
