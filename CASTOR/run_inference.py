@@ -434,6 +434,10 @@ def main():
     # ── Config file ───────────────────────────────────────────────────────────
     parser.add_argument("--config", default=os.path.join(_HERE, "config.json"),
                         metavar="PATH", help="Base config.json; CLI args override it.")
+    parser.add_argument("--run-name", default=None, metavar="TAG",
+                        help="Label appended to the auto-generated output filename "
+                             "(e.g. 'ap5_b02' → answers_degf_ap5_b02.jsonl). "
+                             "Ignored when --answers-file is set explicitly.")
 
     # ── Paths ─────────────────────────────────────────────────────────────────
     g = parser.add_argument_group("paths (override config.json)")
@@ -478,13 +482,14 @@ def main():
     cfg = _load_config(args.config)
     cfg = _merge(cfg, args)
 
-    # Auto-suffix the output file based on mode unless the user explicitly set it.
-    # Prevents baseline and DeGF runs from clobbering each other.
+    # Auto-suffix the output file to prevent runs from clobbering each other.
+    # Pattern: answers_{mode}[_{run_name}].jsonl
     if args.answers_file is None:
         p = cfg["paths"]
         base, ext = os.path.splitext(p["answers_file"])
         mode_tag = "degf" if cfg["hyperparameters"]["use_diffusion"] else "baseline"
-        p["answers_file"] = f"{base}_{mode_tag}{ext}"
+        name_tag = f"_{args.run_name}" if args.run_name else ""
+        p["answers_file"] = f"{base}_{mode_tag}{name_tag}{ext}"
 
     run(cfg)
 

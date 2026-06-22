@@ -6,8 +6,9 @@
 # submit.sh creates /data/$USER/logs/ before sbatch opens the log file.
 #
 # Submit from ~/DeGF/:
-#   bash CASTOR/submit.sh                  # baseline
-#   bash CASTOR/submit.sh --use-diffusion  # DeGF run
+#   bash CASTOR/submit.sh                                          # → answers_baseline.jsonl
+#   bash CASTOR/submit.sh --use-diffusion                         # → answers_degf.jsonl
+#   bash CASTOR/submit.sh --use-diffusion --run-name ap5_b02      # → answers_degf_ap5_b02.jsonl
 #
 # Monitor:
 #   squeue -u $USER

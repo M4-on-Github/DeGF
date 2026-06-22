@@ -3,8 +3,11 @@
 # log file, then delegates all arguments to submit_job.sh.
 #
 # Usage (from ~/DeGF/):
-#   bash CASTOR/submit.sh                  # baseline
-#   bash CASTOR/submit.sh --use-diffusion  # DeGF run
+#   bash CASTOR/submit.sh                                           # → answers_baseline.jsonl
+#   bash CASTOR/submit.sh --use-diffusion                          # → answers_degf.jsonl
+#   bash CASTOR/submit.sh --use-diffusion --run-name ap5_b02       # → answers_degf_ap5_b02.jsonl
+#   bash CASTOR/submit.sh --use-diffusion --degf-alpha-pos 5.0 \
+#       --degf-beta 0.2 --run-name ap5_b02                         # named sweep
 #
 # Monitor:
 #   squeue -u $USER
