@@ -109,8 +109,86 @@ else
     echo "[$(date)] LLaVA already present at $MODEL_DIR — skipping download"
 fi
 
+# ── Select prompt and mode for this array task ───────────────────────────────
+# submit.sh uses interleaved task IDs:
+#   both modes (default) → even task ID = baseline, odd = degf (same prompt)
+#   one mode specified   → task ID maps directly to prompt index
+PROMPTS_DIR="$REPO/CASTOR/prompts"
+IMAGE_DIR="$REPO/CASTOR/shipwreck_wiki_images/sorted_images"
+
+PROMPT_FILES=( "$PROMPTS_DIR"/*.txt )
+N_PROMPTS=${#PROMPT_FILES[@]}
+
+# ── Parse "$@" in one pass ────────────────────────────────────────────────────
+USER_RUN_NAME=""
+HAS_USE_DIFFUSION=false
+HAS_NO_DIFFUSION=false
+PASSTHROUGH=()
+_args=("$@"); _i=0
+while [[ $_i -lt ${#_args[@]} ]]; do
+    case "${_args[$_i]}" in
+        --run-name)      _i=$((_i+1)); USER_RUN_NAME="${_args[$_i]}" ;;
+        --run-name=*)    USER_RUN_NAME="${_args[$_i]#--run-name=}" ;;
+        --use-diffusion) HAS_USE_DIFFUSION=true ;;
+        --no-diffusion)  HAS_NO_DIFFUSION=true  ;;
+        *)               PASSTHROUGH+=("${_args[$_i]}") ;;
+    esac
+    _i=$((_i+1))
+done
+unset _args _i
+
+# ── Resolve prompt file and mode from task ID ─────────────────────────────────
+if $HAS_USE_DIFFUSION; then
+    PROMPT_IDX=$SLURM_ARRAY_TASK_ID
+    MODE_FLAG="--use-diffusion"
+elif $HAS_NO_DIFFUSION; then
+    PROMPT_IDX=$SLURM_ARRAY_TASK_ID
+    MODE_FLAG="--no-diffusion"
+else
+    # Both modes: even task → baseline, odd task → degf (pairs share a prompt)
+    PROMPT_IDX=$(( SLURM_ARRAY_TASK_ID / 2 ))
+    if (( SLURM_ARRAY_TASK_ID % 2 == 0 )); then
+        MODE_FLAG="--no-diffusion"
+    else
+        MODE_FLAG="--use-diffusion"
+    fi
+fi
+
+PROMPT_FILE="${PROMPT_FILES[$PROMPT_IDX]}"
+STEM=$(basename "$PROMPT_FILE" .txt)
+
+# ── Build run name ────────────────────────────────────────────────────────────
+# Pattern: [user_tag_]{stem}_j{ArrayJobID}
+# Matches log file: castor[_{user_tag}]_{ArrayJobID}_{TaskID}.out
+if [[ -n "$USER_RUN_NAME" ]]; then
+    RUN_NAME="${USER_RUN_NAME}_${STEM}_j${SLURM_ARRAY_JOB_ID}"
+else
+    RUN_NAME="${STEM}_j${SLURM_ARRAY_JOB_ID}"
+fi
+
+QUESTIONS_FILE="$DATA_DIR/castor_results/questions_${RUN_NAME}.jsonl"
+mkdir -p "$DATA_DIR/castor_results"
+
+echo "=========================================="
+echo " Array task  : $SLURM_ARRAY_TASK_ID  (job $SLURM_ARRAY_JOB_ID)"
+echo " Mode        : $MODE_FLAG"
+echo " Prompt file : $PROMPT_FILE"
+echo " Run name    : $RUN_NAME"
+echo " Questions   : $QUESTIONS_FILE"
+echo "=========================================="
+
+# ── Prepare dataset with this prompt ─────────────────────────────────────────
+$APPTAINER_BASE "$SIF" $PYTHON "$REPO/CASTOR/prepare_dataset.py" \
+    --image-dir   "$IMAGE_DIR" \
+    --output      "$QUESTIONS_FILE" \
+    --prompt-file "$PROMPT_FILE"
+
 # ── Run inference ─────────────────────────────────────────────────────────────
-time $APPTAINER_BASE "$SIF" $PYTHON "$REPO/CASTOR/run_inference.py" "$@"
+time $APPTAINER_BASE "$SIF" $PYTHON "$REPO/CASTOR/run_inference.py" \
+    "${PASSTHROUGH[@]}" \
+    --question-file "$QUESTIONS_FILE" \
+    --run-name      "$RUN_NAME" \
+    "$MODE_FLAG"
 
 ELAPSED=$(( SECONDS - JOB_START ))
 echo "=========================================="
