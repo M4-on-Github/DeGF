@@ -15,19 +15,19 @@
 #   tail -f /data/$USER/logs/castor_<JOBID>.out
 #
 # Interactive debug:
-#   srun -p pleiades --time=1:00:00 --cpus-per-task=4 --gpus=1 --mem=40G --pty bash
+#   srun -p pleiades --time=1:00:00 --cpus-per-task=4 --gpus=1 --mem=40G --constraint=RTX6000ADA --pty bash
 #   cd ~/DeGF
 #   apptainer exec --containall --nv \
 #       --bind /data/$USER:/data/$USER --bind ~/DeGF:~/DeGF --bind /tmp:/tmp \
 #       /data/$USER/castor.sif /opt/conda/bin/python3 CASTOR/run_inference.py
 # ─────────────────────────────────────────────────────────────────────────────
 #SBATCH -p pleiades
-#SBATCH --gpus=1
+#SBATCH --gpus-per-task=1
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=40G
 #SBATCH --time=12:00:00
 #SBATCH -J castor
-#SBATCH --exclude=pleiades-1-3
+#SBATCH --constraint=RTX6000ADA
 # NOTE: --output and --error are set by CASTOR/submit.sh to /data/$USER/logs/
 
 set -e
