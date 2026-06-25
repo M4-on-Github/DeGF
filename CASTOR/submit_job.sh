@@ -57,22 +57,14 @@ export TRANSFORMERS_CACHE="$DATA_DIR/.cache/huggingface"
 export TORCH_HOME="$DATA_DIR/.cache/torch"
 mkdir -p "$HF_HOME" "$TORCH_HOME"
 
-# ── Build Apptainer container if missing or container.def has changed ─────────
+# Container is built by build_container.sh before this array job starts.
+# submit.sh chains the two jobs with --dependency=afterok.
 SIF="$DATA_DIR/castor.sif"
-DEF_HASH=$(sha256sum CASTOR/container.def | cut -d' ' -f1)
-SIF_HASH_FILE="$SIF.def.sha256"
-if [ ! -f "$SIF" ] || [ ! -f "$SIF_HASH_FILE" ] || [ "$DEF_HASH" != "$(cat "$SIF_HASH_FILE")" ]; then
-    echo "[$(date)] Building container from CASTOR/container.def (hash: $DEF_HASH) ..."
-    if apptainer build --fakeroot "$SIF" CASTOR/container.def; then
-        echo "$DEF_HASH" > "$SIF_HASH_FILE"
-        echo "[$(date)] Container ready: $SIF"
-    else
-        echo "[$(date)] Container build FAILED — check logs above." >&2
-        exit 1
-    fi
-else
-    echo "[$(date)] Container up-to-date (hash: $DEF_HASH), skipping build."
+if [ ! -f "$SIF" ]; then
+    echo "ERROR: $SIF not found — was the build job (build_container.sh) successful?" >&2
+    exit 1
 fi
+echo "[$(date)] Container: $SIF"
 
 # --containall stops the cluster's apptainer.conf from bind-mounting the host
 # /opt over the container's /opt/conda. We then add back only what's needed.
@@ -90,24 +82,6 @@ APPTAINER_BASE="apptainer exec --containall --nv \
 PYTHON=/opt/conda/bin/python3
 
 echo "[$(date)] Container Python: $PYTHON"
-
-# ── Download LLaVA-1.5-7B if not already present ─────────────────────────────
-MODEL_DIR="$DATA_DIR/llava-v1.5-7b"
-if [ ! -d "$MODEL_DIR" ] || [ -z "$(ls -A "$MODEL_DIR" 2>/dev/null)" ]; then
-    echo "[$(date)] Downloading LLaVA-1.5-7B → $MODEL_DIR ..."
-    $APPTAINER_BASE "$SIF" $PYTHON -c "
-from huggingface_hub import snapshot_download
-snapshot_download(
-    'liuhaotian/llava-v1.5-7b',
-    local_dir='$MODEL_DIR',
-    local_dir_use_symlinks=False,
-)
-print('LLaVA download complete.')
-"
-    echo "[$(date)] LLaVA ready at $MODEL_DIR"
-else
-    echo "[$(date)] LLaVA already present at $MODEL_DIR — skipping download"
-fi
 
 # ── Select prompt and mode for this array task ───────────────────────────────
 # submit.sh uses interleaved task IDs:

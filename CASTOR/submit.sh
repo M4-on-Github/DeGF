@@ -56,7 +56,31 @@ fi
 # Log prefix matches output file naming: castor[_{run_name}]_{ArrayJobID}_{TaskID}.out
 LOG_PREFIX="castor${RUN_NAME_TAG:+_${RUN_NAME_TAG}}"
 
+# ── Container: build once before array tasks start ────────────────────────────
+# apptainer build cannot run on the head node; submit a dedicated build job and
+# chain the array job behind it with --dependency=afterok so tasks only start
+# after a successful build. If the container is already up-to-date, skip.
+DATA_DIR="/data/$USER"
+SIF="$DATA_DIR/castor.sif"
+DEF="$SCRIPT_DIR/container.def"
+DEF_HASH=$(sha256sum "$DEF" | cut -d' ' -f1)
+SIF_HASH_FILE="$SIF.def.sha256"
+
+DEPENDENCY=""
+if [ -f "$SIF" ] && [ -f "$SIF_HASH_FILE" ] && [ "$DEF_HASH" = "$(cat "$SIF_HASH_FILE")" ]; then
+    echo "[container] Up-to-date (hash: $DEF_HASH), skipping build."
+else
+    echo "[container] Stale or missing — submitting build job (hash: $DEF_HASH) ..."
+    BUILD_JOB=$(sbatch --parsable \
+        --output="$LOG_DIR/build_castor_%j.out" \
+        --error="$LOG_DIR/build_castor_%j.err" \
+        "$SCRIPT_DIR/build_container.sh")
+    echo "[container] Build job $BUILD_JOB submitted — array will wait for it."
+    DEPENDENCY="--dependency=afterok:${BUILD_JOB}"
+fi
+
 exec sbatch \
+    $DEPENDENCY \
     --output="$LOG_DIR/${LOG_PREFIX}_%A_%a.out" \
     --error="$LOG_DIR/${LOG_PREFIX}_%A_%a.err" \
     --array="0-${ARRAY_END}" \

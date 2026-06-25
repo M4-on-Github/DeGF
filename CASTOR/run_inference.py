@@ -436,7 +436,11 @@ def main():
                         metavar="PATH", help="Base config.json; CLI args override it.")
     parser.add_argument("--run-name", default=None, metavar="TAG",
                         help="Label appended to the auto-generated output filename "
-                             "(e.g. 'ap5_b02' → answers_degf_ap5_b02.jsonl). "
+                             "(e.g. 'ap5_b02' → answers_llava_degf_ap5_b02.jsonl). "
+                             "Ignored when --answers-file is set explicitly.")
+    parser.add_argument("--model-tag", default="llava", metavar="TAG",
+                        help="Model identifier prefix in the output filename "
+                             "(e.g. 'qwen3vl8b' → answers_qwen3vl8b_degf.jsonl). "
                              "Ignored when --answers-file is set explicitly.")
 
     # ── Paths ─────────────────────────────────────────────────────────────────
@@ -483,13 +487,13 @@ def main():
     cfg = _merge(cfg, args)
 
     # Auto-suffix the output file to prevent runs from clobbering each other.
-    # Pattern: answers_{mode}[_{run_name}].jsonl
+    # Pattern: answers_{model_tag}_{mode}[_{run_name}].jsonl
     if args.answers_file is None:
         p = cfg["paths"]
         base, ext = os.path.splitext(p["answers_file"])
-        mode_tag = "degf" if cfg["hyperparameters"]["use_diffusion"] else "baseline"
-        name_tag = f"_{args.run_name}" if args.run_name else ""
-        p["answers_file"] = f"{base}_{mode_tag}{name_tag}{ext}"
+        mode_tag  = "degf" if cfg["hyperparameters"]["use_diffusion"] else "baseline"
+        name_tag  = f"_{args.run_name}" if args.run_name else ""
+        p["answers_file"] = f"{base}_{args.model_tag}_{mode_tag}{name_tag}{ext}"
 
     run(cfg)
 
