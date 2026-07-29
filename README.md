@@ -62,3 +62,41 @@ If you find this code useful, please consider citing our work:
 }
 ```
 
+## CASTOR Application (ONR Research)
+
+This repository is also configured for the **CASTOR** maritime disaster classification task: classifying shipwreck images (`aground / capsized / on_fire / sunken`) using LLaVA-1.5-7B and Stable Diffusion v1.5 on the AART Lab `pleiades` SLURM cluster.
+
+### Cluster Setup
+
+```bash
+ssh head1.condo.cs.cmu.edu
+# Interactive GPU node (RTX6000Ada required)
+srun -p pleiades --time=1:00:00 --cpus-per-task=4 --gpus=1 --mem=40G --constraint=RTX6000ADA --pty bash
+```
+
+### Running CASTOR Inference
+
+From `~/DeGF/` on the cluster:
+
+```bash
+# Full sweep — baseline + DeGF with SD reference, all prompts
+bash CASTOR/submit.sh
+
+# Baseline only (no Stable Diffusion)
+bash CASTOR/submit.sh --no-diffusion
+
+# DeGF only (with Stable Diffusion reference image)
+bash CASTOR/submit.sh --use-diffusion
+
+# With a run tag (appended to output filenames)
+bash CASTOR/submit.sh --run-name my_run
+
+# Monitor
+squeue -u $USER
+tail -f /data/$USER/logs/castor_<ARRAYJOBID>_<TASKID>.out
+```
+
+Results land in `/data/$USER/castor_results/answers_{mode}[_{run_name}]_{prompt}_{jobid}.jsonl`. Runs are resumable — resubmitting skips already-written lines.
+
+See `CLAUDE.md` for full architecture details, cluster storage layout, container build process, and the SLURM array task ID mapping.
+
