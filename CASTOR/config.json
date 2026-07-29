@@ -2,7 +2,7 @@
     "paths": {
         "model_path": "/data/$USER/llava-v1.5-7b",
         "model_base": null,
-        "image_folder": "CASTOR/shipwreck_wiki_images/sorted_images",
+        "image_folder": "../shipwreck_wiki_images/sorted_images",
         "question_file": "CASTOR/shipwreck_wiki_images/questions.jsonl",
         "answers_file": "/data/$USER/castor_results/answers.jsonl"
     },

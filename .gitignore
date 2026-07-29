@@ -31,8 +31,8 @@ env/
 answers_*.jsonl
 castor_results/
 
-# Shipwreck image dataset (transfer separately, not via git)
-CASTOR/shipwreck_wiki_images/sorted_images/
+# Shipwreck image dataset (now lives in benchybench/shipwreck_wiki_images/)
+CASTOR/shipwreck_wiki_images/
 
 # HuggingFace / torch cache
 .cache/
