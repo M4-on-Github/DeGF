@@ -7,8 +7,8 @@ Supports flat layout (image_dir/file.jpg) and categorized layout
 
 Usage:
     python CASTOR/prepare_dataset.py \\
-        --image-dir  CASTOR/shipwreck_wiki_images/sorted_images \\
-        --output     CASTOR/shipwreck_wiki_images/questions.jsonl \\
+        --image-dir  ../shipwreck_wiki_images/sorted_images \\
+        --output     /data/$USER/castor_results/questions.jsonl \\
         --prompt-file CASTOR/prompts/prompt.txt
 """
 import argparse
