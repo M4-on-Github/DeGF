@@ -98,5 +98,37 @@ tail -f /data/$USER/logs/castor_<ARRAYJOBID>_<TASKID>.out
 
 Results land in `/data/$USER/castor_results/answers_{mode}[_{run_name}]_{prompt}_{jobid}.jsonl`. Runs are resumable — resubmitting skips already-written lines.
 
-See `CLAUDE.md` for full architecture details, cluster storage layout, container build process, and the SLURM array task ID mapping.
+### Pipeline Architecture
+
+```
+CASTOR/submit.sh                  (creates log dir, counts prompts, calls sbatch)
+  └─ sbatch CASTOR/submit_job.sh  (SLURM array job: one task per prompt × mode)
+       ├─ builds/reuses castor.sif (hashes container.def; skips if unchanged)
+       ├─ runs prepare_dataset.py  (builds per-prompt questions.jsonl)
+       └─ apptainer exec → run_inference.py
+            ├─ loads LLaVA-1.5-7B  (experiments/llava/ — vendored, not pip)
+            ├─ [DeGF] loads SD v1.5 (degf_utils/image_generation.py)
+            └─ per image: description → SD reference → JS-divergence decoding
+```
+
+**SLURM array task mapping** — with N prompts and both modes:
+- Even task ID → baseline (`--no-diffusion`), `PROMPT_IDX = task_id / 2`
+- Odd task ID → DeGF (`--use-diffusion`), `PROMPT_IDX = task_id / 2`
+
+### Hard Constraints
+
+- **Never modify `degf_utils/`** — this is the core JS-divergence decoding algorithm.
+- **Never upgrade pinned packages** — `transformers==4.31.0`, `torch==2.0.1`, `peft==0.4.0`, `bitsandbytes==0.41.0`, `diffusers==0.21.4`, `torchvision==0.15.2`. These are interdependent; see `CASTOR/container.def` for install-order rationale.
+- `$USER` in `CASTOR/config.json` paths is expanded at runtime — never hardcode a username.
+- `experiments/llava/` is the vendored LLaVA source; `run_inference.py` inserts it into `sys.path` at startup.
+
+### Cluster Storage
+
+| What | Path |
+|------|------|
+| LLaVA-1.5-7B weights | `/data/$USER/llava-v1.5-7b/` |
+| Apptainer container | `/data/$USER/castor.sif` |
+| HF cache (SD weights) | `/data/$USER/.cache/huggingface/` |
+| Results + question files | `/data/$USER/castor_results/` |
+| Logs | `/data/$USER/logs/` |
 
