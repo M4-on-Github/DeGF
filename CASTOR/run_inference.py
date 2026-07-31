@@ -209,6 +209,9 @@ def run(cfg: dict):
     disable_torch_init()
 
     use_diffusion = hp["use_diffusion"]
+    sd_dir = paths.get("sd_dir")
+    if sd_dir:
+        os.makedirs(sd_dir, exist_ok=True)
     job_start = time.perf_counter()
     print(f"Mode       : {'DeGF (diffusion on)' if use_diffusion else 'Baseline (no diffusion)'}")
     print(f"Model      : {paths['model_path']}")
@@ -255,6 +258,12 @@ def run(cfg: dict):
 
     question_times = []
 
+    firstpass_file = paths.get("firstpass_file")
+    fp_f = None
+    if firstpass_file and use_diffusion:
+        os.makedirs(os.path.dirname(os.path.abspath(firstpass_file)), exist_ok=True)
+        fp_f = open(firstpass_file, "a", encoding="utf-8")
+
     with open(answers_file, "a", encoding="utf-8") as out_f:
         for item in tqdm(questions[start_idx:], initial=start_idx, total=len(questions)):
             # Initialise all tensor refs to None so the finally block can
@@ -294,6 +303,9 @@ def run(cfg: dict):
 
                     t0 = time.perf_counter()
                     raw_neg  = generate_image_stable_diffusion(sd_pipe, _build_sd_prompt(desc))
+                    if sd_dir:
+                        img_stem = os.path.splitext(item["image"].replace("/", "_").replace("\\", "_"))[0]
+                        raw_neg.save(os.path.join(sd_dir, img_stem + ".png"))
                     neg_pixels = image_processor.preprocess(
                         raw_neg, return_tensors="pt"
                     )["pixel_values"][0]
@@ -302,7 +314,6 @@ def run(cfg: dict):
                     t_sd = time.perf_counter() - t0
 
                 # ── Main inference pass ───────────────────────────────────────
-                t0 = time.perf_counter()
                 question_text = item["text"]
                 qs = (DEFAULT_IM_START_TOKEN + DEFAULT_IMAGE_TOKEN + DEFAULT_IM_END_TOKEN + "\n"
                       if model.config.mm_use_im_start_end else DEFAULT_IMAGE_TOKEN + "\n"
@@ -316,6 +327,25 @@ def run(cfg: dict):
                 input_ids = tokenizer_image_token(
                     conv.get_prompt(), tokenizer, IMAGE_TOKEN_INDEX, return_tensors="pt"
                 ).unsqueeze(0).cuda()
+
+                # ── Pre-DeGF first pass (baseline, no SD) ────────────────────
+                if fp_f and use_diffusion:
+                    fp_out = _run_generate_safe(model, input_ids, image_tensor, None,
+                                                hp, use_diffusion=False, use_cache=True)
+                    fp_answer = tokenizer.batch_decode(
+                        fp_out[:, input_ids.shape[1]:], skip_special_tokens=True
+                    )[0].strip().rstrip(stop_str).strip()
+                    fp_f.write(json.dumps({
+                        "question_id": item["question_id"],
+                        "image":       item["image"],
+                        "prompt":      question_text,
+                        "text":        fp_answer,
+                        "model_id":    model_name,
+                        "method":      "degf_firstpass",
+                    }) + "\n")
+                    fp_f.flush()
+
+                t0 = time.perf_counter()
                 output_ids = _run_generate_safe(model, input_ids, image_tensor, image_neg,
                                                 hp, use_diffusion=use_diffusion, use_cache=True)
 
@@ -377,6 +407,9 @@ def run(cfg: dict):
                 gc.collect()
                 torch.cuda.empty_cache()
 
+    if fp_f:
+        fp_f.close()
+
     job_elapsed = time.perf_counter() - job_start
     n = len(question_times)
     print(f"\n{'='*50}")
@@ -408,6 +441,8 @@ def _merge(cfg: dict, args) -> dict:
     if args.image_folder  is not None: p["image_folder"]  = args.image_folder
     if args.question_file is not None: p["question_file"] = args.question_file
     if args.answers_file  is not None: p["answers_file"]  = args.answers_file
+    if args.sd_dir         is not None: p["sd_dir"]         = args.sd_dir
+    if args.firstpass_file is not None: p["firstpass_file"] = args.firstpass_file
 
     # hyperparameters
     if args.conv_mode       is not None: hp["conv_mode"]       = args.conv_mode
@@ -451,6 +486,11 @@ def main():
     g.add_argument("--image-folder",  default=None, metavar="PATH")
     g.add_argument("--question-file", default=None, metavar="PATH")
     g.add_argument("--answers-file",  default=None, metavar="PATH")
+    g.add_argument("--sd-dir",        default=None, metavar="PATH",
+                   help="Directory to save SD reference images (DeGF only). "
+                        "Skipped when omitted or when running baseline.")
+    g.add_argument("--firstpass-file", default=None, metavar="PATH",
+                   help="JSONL to save pre-DeGF baseline answers (DeGF only).")
 
     # ── Mode ──────────────────────────────────────────────────────────────────
     g = parser.add_argument_group("mode")
