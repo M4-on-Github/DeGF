@@ -7,112 +7,140 @@ reference. Detail that survives only on the original — not on an image built
 purely from the model's own words — is evidence the model saw it rather than
 assumed it.
 
-Model: runwayml/stable-diffusion-v1-5 in fp16. The commented alternatives
-(SD v1-1, v2-1, SDXL base) are kept from the upstream implementation as a
-record of what was evaluated; switching among them changes the reference image
-and therefore the contrastive signal, so it is not a free choice.
+Model: runwayml/stable-diffusion-v1-5 in fp16. The alternatives listed in
+StableDiffusionGenerator are kept from the upstream implementation as a record
+of what was evaluated; switching among them changes the reference image and
+therefore the contrastive signal, so it is not a free choice.
 """
 import torch
 from diffusers import StableDiffusionPipeline, DPMSolverMultistepScheduler, DiffusionPipeline
 
-def get_image_generation_pipeline():
-    """Load the Stable Diffusion pipeline onto the GPU.
 
-    Expensive — weights download on a cold cache, then transfer to GPU — so
-    call once per process and reuse. fp16 roughly halves memory against fp32
-    and fits alongside LLaVA-1.5-7B on a single 48 GB card, which is what makes
-    single-GPU DeGF inference possible at all.
+class StableDiffusionGenerator:
+    """Generates contrastive reference images from text descriptions.
 
-    Device is hardcoded to cuda:0: the inference jobs request one GPU, so it is
-    the only device visible inside the container.
+    Owns the pipeline and the long-prompt encoding that goes with it. The
+    pipeline loads on first use rather than at construction, so building this
+    object is cheap and a baseline run that never generates pays nothing.
+
+    `loader` exists for testing: it lets a fake pipeline be injected so the
+    lazy-loading and prompt-encoding contracts can be verified without
+    downloading weights or requiring a GPU.
     """
-    # pipe = StableDiffusionPipeline.from_pretrained("CompVis/stable-diffusion-v1-1", torch_dtype=torch.float16)
-    pipe = StableDiffusionPipeline.from_pretrained("runwayml/stable-diffusion-v1-5", torch_dtype=torch.float16)
-    # pipe = StableDiffusionPipeline.from_pretrained("stabilityai/stable-diffusion-2-1", torch_dtype=torch.float16)
-    # pipe.scheduler = DPMSolverMultistepScheduler.from_config(pipe.scheduler.config)
-    # pipe = DiffusionPipeline.from_pretrained("stabilityai/stable-diffusion-xl-base-0.9", torch_dtype=torch.float16, use_safetensors=True, variant="fp16")
-    # pipe = DiffusionPipeline.from_pretrained("stabilityai/stable-diffusion-xl-base-1.0", torch_dtype=torch.float16, use_safetensors=True, variant="fp16")
 
-    pipe = pipe.to("cuda:0")
+    MODEL_NAME = "runwayml/stable-diffusion-v1-5"
+    DEVICE = "cuda:0"          # jobs request one GPU; it is the only one visible
+    INFERENCE_STEPS = 50       # upstream default; fewer gives a noisier reference
 
-    return pipe
+    #: Evaluated upstream, retained for provenance. Each produces a different
+    #: reference image and therefore different published numbers.
+    ALTERNATIVES = (
+        "CompVis/stable-diffusion-v1-1",
+        "stabilityai/stable-diffusion-2-1",
+        "stabilityai/stable-diffusion-xl-base-0.9",
+        "stabilityai/stable-diffusion-xl-base-1.0",
+    )
+
+    def __init__(self, model_name=None, device=None, loader=None):
+        self.model_name = model_name or self.MODEL_NAME
+        self.device = device or self.DEVICE
+        self._loader = loader or self._default_loader
+        self._pipe = None
+
+    @staticmethod
+    def _default_loader(model_name):
+        # fp16 roughly halves memory against fp32 and lets Stable Diffusion sit
+        # alongside LLaVA-1.5-7B on one 48 GB card — which is what makes
+        # single-GPU DeGF inference possible at all.
+        return StableDiffusionPipeline.from_pretrained(model_name, torch_dtype=torch.float16)
+
+    @property
+    def pipe(self):
+        """The pipeline, loaded and moved to device on first access."""
+        if self._pipe is None:
+            self._pipe = self._loader(self.model_name).to(self.device)
+        return self._pipe
+
+    @property
+    def is_loaded(self):
+        return self._pipe is not None
+
+    def encode_prompt(self, prompt, negative_prompt="", device="cuda"):
+        """Encode prompts longer than CLIP's 77-token limit.
+
+        Splits the token sequence into chunks, encodes each, and concatenates
+        along the sequence axis. Without this the tokenizer truncates, and the
+        tail of a long description is silently discarded — dropping exactly
+        the trailing detail the contrast exists to test.
+
+        The prompt and negative prompt must yield equal-length embeddings for
+        the pipeline to combine them, so whichever is shorter is padded to
+        match the longer.
+
+        A fixed chunk boundary can split a phrase across two encoder calls, so
+        each chunk is encoded without its neighbours' context. That is the
+        upstream approach; the alternative is truncation, which loses the
+        content entirely.
+        """
+        pipeline = self.pipe
+        max_length = pipeline.tokenizer.model_max_length
+
+        # simple way to determine length of tokens
+        count_prompt = len(prompt.split(" "))
+        count_negative_prompt = len(negative_prompt.split(" "))
+
+        # create the tensor based on which prompt is longer
+        if count_prompt >= count_negative_prompt:
+            input_ids = pipeline.tokenizer(prompt, return_tensors="pt", truncation=False).input_ids.to(device)
+            shape_max_length = input_ids.shape[-1]
+            negative_ids = pipeline.tokenizer(negative_prompt, truncation=False, padding="max_length",
+                                              max_length=shape_max_length, return_tensors="pt").input_ids.to(device)
+
+        else:
+            negative_ids = pipeline.tokenizer(negative_prompt, return_tensors="pt", truncation=False).input_ids.to(device)
+            shape_max_length = negative_ids.shape[-1]
+            input_ids = pipeline.tokenizer(prompt, return_tensors="pt", truncation=False, padding="max_length",
+                                           max_length=shape_max_length).input_ids.to(device)
+
+        concat_embeds = []
+        neg_embeds = []
+        for i in range(0, shape_max_length, max_length):
+            concat_embeds.append(pipeline.text_encoder(input_ids[:, i: i + max_length])[0])
+            neg_embeds.append(pipeline.text_encoder(negative_ids[:, i: i + max_length])[0])
+
+        return torch.cat(concat_embeds, dim=1), torch.cat(neg_embeds, dim=1)
+
+    def generate(self, description):
+        """Generate a reference image from a VLM-produced description."""
+        prompt_embeds, negative_prompt_embeds = self.encode_prompt(description, "", "cuda")
+        return self.pipe(prompt_embeds=prompt_embeds,
+                         negative_prompt_embeds=negative_prompt_embeds,
+                         num_inference_steps=self.INFERENCE_STEPS).images[0]
+
+
+# ── Compatibility facade ─────────────────────────────────────────────────────
+# run_inference.py and QWEN's degf_ablate call these directly.
+
+def get_image_generation_pipeline():
+    """Return a loaded Stable Diffusion pipeline.
+
+    Kept returning the raw pipeline rather than the generator object, because
+    callers hold the result and pass it back to
+    generate_image_stable_diffusion(). Loading happens here, on the .pipe
+    access, matching the original eager behaviour for this entry point.
+    """
+    return StableDiffusionGenerator().pipe
+
 
 def generate_image_stable_diffusion(pipe, description):
-    """Generate a reference image from a VLM-produced description.
+    """Generate a reference image using an already-loaded `pipe`."""
+    generator = StableDiffusionGenerator()
+    generator._pipe = pipe          # adopt the caller's pipeline
+    return generator.generate(description)
 
-    Goes through get_pipeline_embeds rather than passing `description`
-    straight to the pipeline (see the commented-out line). That matters here:
-    VLM descriptions routinely exceed CLIP's 77-token limit, and the direct
-    path would silently truncate them — dropping exactly the trailing detail
-    the contrast is meant to test.
-
-    50 inference steps is the upstream default. Fewer is faster but yields a
-    noisier reference, which weakens the comparison.
-    """
-    prompt_embeds, negative_prompt_embeds = get_pipeline_embeds(pipe, description, "", "cuda")
-    image = pipe(prompt_embeds=prompt_embeds, negative_prompt_embeds=negative_prompt_embeds, num_inference_steps=50).images[0]
-    # image = pipe(description).images[0]
-    return image
 
 def get_pipeline_embeds(pipeline, prompt, negative_prompt, device):
-    """ Get pipeline embeds for prompts bigger than the maxlength of the pipe
-    :param pipeline:
-    :param prompt:
-    :param negative_prompt:
-    :param device:
-    :return:
-
-    Encodes prompts longer than CLIP's 77-token limit by splitting the token
-    sequence into chunks, encoding each, and concatenating along the sequence
-    axis. Without this the tokenizer truncates and the tail of a long
-    description is silently discarded.
-
-    The prompt and negative prompt must produce equal-length embeddings for the
-    pipeline to combine them, so the shorter one is padded to match the longer.
-    That is what the branch below decides: whichever is longer sets
-    shape_max_length, and the other is padded to it.
-
-    Chunking at a fixed boundary can split a phrase across two encoder calls,
-    so each chunk is encoded without the context of its neighbours. This is the
-    upstream approach and is accepted as-is; the alternative is truncation,
-    which loses the content entirely.
-    """
-    max_length = pipeline.tokenizer.model_max_length
-
-    # simple way to determine length of tokens
-    count_prompt = len(prompt.split(" "))
-    count_negative_prompt = len(negative_prompt.split(" "))
-
-    # create the tensor based on which prompt is longer
-    if count_prompt >= count_negative_prompt:
-        input_ids = pipeline.tokenizer(prompt, return_tensors="pt", truncation=False).input_ids.to(device)
-        shape_max_length = input_ids.shape[-1]
-        negative_ids = pipeline.tokenizer(negative_prompt, truncation=False, padding="max_length",
-                                          max_length=shape_max_length, return_tensors="pt").input_ids.to(device)
-
-    else:
-        negative_ids = pipeline.tokenizer(negative_prompt, return_tensors="pt", truncation=False).input_ids.to(device)
-        shape_max_length = negative_ids.shape[-1]
-        input_ids = pipeline.tokenizer(prompt, return_tensors="pt", truncation=False, padding="max_length",
-                                       max_length=shape_max_length).input_ids.to(device)
-
-    concat_embeds = []
-    neg_embeds = []
-    for i in range(0, shape_max_length, max_length):
-        concat_embeds.append(pipeline.text_encoder(input_ids[:, i: i + max_length])[0])
-        neg_embeds.append(pipeline.text_encoder(negative_ids[:, i: i + max_length])[0])
-
-    return torch.cat(concat_embeds, dim=1), torch.cat(neg_embeds, dim=1)
-
-
-# model_id = "stabilityai/stable-diffusion-2-1"
-
-# # Use the DPMSolverMultistepScheduler (DPM-Solver++) scheduler here instead
-# pipe = StableDiffusionPipeline.from_pretrained(model_id, torch_dtype=torch.float16)
-# pipe.scheduler = DPMSolverMultistepScheduler.from_config(pipe.scheduler.config)
-# pipe = pipe.to("cuda")
-
-# prompt = "a photo of an astronaut riding a horse on mars"
-# image = pipe(prompt).images[0]
-
-# image.save("astronaut_rides_horse.png")
+    """Encode prompts exceeding CLIP's token limit. See encode_prompt()."""
+    generator = StableDiffusionGenerator()
+    generator._pipe = pipeline
+    return generator.encode_prompt(prompt, negative_prompt, device)
