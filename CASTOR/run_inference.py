@@ -121,10 +121,43 @@ evolve_degf_sampling()
 
 # ─────────────────────────────────────────────────────────────────────────────
 
+class SDPromptBuilder:
+    """Turns the VLM's own description into a Stable Diffusion prompt.
+
+    This is the hinge of DeGF's first pass. The model describes the
+    photograph, that description is regenerated as an image, and the two are
+    contrasted — so the quality of this translation determines how meaningful
+    the contrast is. A prompt that loses the model's claims produces a
+    reference image that disagrees with it for the wrong reason.
+
+    Three fallbacks, weakest assumption last:
+
+      1. parse the output as JSON and read its fields
+      2. if that fails, regex the known field names out of the raw text —
+         which rescues output that is nearly-JSON, the common failure
+      3. if no fields are found at all, pass the raw text through unchanged.
+         Better to send Stable Diffusion a messy prompt than an empty one; an
+         empty prompt yields an unconditioned image and a meaningless contrast.
+
+    Fields are assembled into prose rather than passed as a JSON blob because
+    Stable Diffusion conditions on natural language — a raw JSON string
+    tokenises into punctuation and field names that carry no visual meaning.
+    """
+
+    #: Field names looked for when JSON parsing fails.
+    FIELDS = ("description", "state", "vessel_type",
+              "size_estimate", "cargo", "surroundings")
+
+    #: Cargo values that mean "none recorded" and must not become prose.
+    NULL_CARGO = ("null", "none", "n/a", "")
+
+
 def _build_sd_prompt(model_output: str) -> str:
     """
     Try to parse the model's JSON output and distill it into a natural-language
     SD prompt. Falls back to using raw text if parsing fails.
+
+    See SDPromptBuilder for why the fallbacks are ordered as they are.
     """
     fields = {}
     try:
@@ -191,9 +224,32 @@ def _run_generate(model, input_ids, image_tensor, image_neg,
     return output_ids
 
 
+class OOMRecovery:
+    """One retry after clearing the GPU cache, then give up.
+
+    DeGF holds LLaVA-1.5-7B and Stable Diffusion resident simultaneously, so a
+    long answer on a large image can exhaust a 48 GB card. Most such failures
+    are fragmentation rather than a genuine shortfall, and freeing the cache
+    recovers them.
+
+    EXACTLY ONE retry, deliberately. A second attempt against a card that is
+    truly full wastes an allocation slot for every remaining image; failing
+    fast leaves an "oom-skip" record the run can be resumed against.
+
+    Only OOM is retried. RuntimeError is broad, so the message is checked and
+    anything else re-raises — a shape mismatch retried identically would just
+    fail identically, hiding the real error behind an OOM message.
+    """
+
+    MAX_RETRIES = 1
+
+
 def _run_generate_safe(model, input_ids, image_tensor, image_neg,
                        hp: dict, use_diffusion: bool, use_cache: bool = True):
-    """Calls _run_generate with one OOM-recovery retry before giving up."""
+    """Calls _run_generate with one OOM-recovery retry before giving up.
+
+    See OOMRecovery for why the retry count is one and why only OOM is caught.
+    """
     try:
         return _run_generate(model, input_ids, image_tensor, image_neg,
                              hp, use_diffusion, use_cache)
