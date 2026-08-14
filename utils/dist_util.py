@@ -1,3 +1,15 @@
+"""Distributed setup and seeding helpers.
+
+Inherited from the upstream paper repository, which trained across multiple
+GPUs. CASTOR inference is single-process and single-GPU, so setup_dist() is
+unused here; set_random_seed() is the part that matters.
+
+set_random_seed() seeds Python, NumPy and torch (CPU and all CUDA devices) and
+puts cuDNN in deterministic mode. That last step trades throughput for
+reproducibility: without it cuDNN picks convolution algorithms by runtime
+benchmarking, so the same input can yield slightly different output between
+runs — which would make a decoding comparison irreproducible.
+"""
 import os
 import random
 import socket
