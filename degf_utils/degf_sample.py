@@ -1,59 +1,3 @@
-"""DeGF decoding — monkey-patched replacements for HuggingFace generation.
-
-Implements "Self-Correcting Decoding with Generative Feedback for Mitigating
-Hallucinations in Large Vision-Language Models" (ICLR 2025).
-
-HOW IT IS INSTALLED
-    evolve_degf_sampling() overwrites GenerationMixin.sample and
-    GenerationMixin.greedy_search on the transformers module itself. The patch
-    is global and permanent for the process: after calling it, EVERY model in
-    the process decodes through this file, including a baseline run. Baseline
-    behaviour is preserved because none of the contrast modes activate unless
-    the corresponding flag is set in model_kwargs.
-
-    This is also why transformers is pinned to 4.31.0. These functions are
-    copies of that version's originals with the contrast block inserted; a
-    different version's generation loop has a different signature and internal
-    contract, and the patch would either fail or silently diverge.
-
-THE IDEA
-    The model is run twice per token: once on the real image, once on a
-    "reference" view of it. Comparing the two next-token distributions
-    separates detail grounded in the image from detail the model would assert
-    regardless.
-
-FOUR CONTRAST MODES, selected by flags in model_kwargs
-    use_ritual     additive toward a positive reference
-    use_vcd        contrastive against a noised image (visual contrastive
-                   decoding)
-    use_m3id       contrastive with a decay schedule, so the correction
-                   weakens as the sequence grows
-    use_diffusion  DeGF proper — see below
-
-DeGF's JS-DIVERGENCE GATE
-    DeGF does not apply a fixed correction. It measures the Jensen-Shannon
-    divergence between the two distributions at each token and switches
-    direction on it:
-
-      JS < 0.1  the two views agree, so the reference is trustworthy and its
-                signal is ADDED (amplifying shared evidence)
-      JS >= 0.1 the views disagree, so the reference is treated as a
-                distractor and SUBTRACTED (contrastive decoding)
-
-    That per-token switch is the paper's contribution. The threshold is
-    hardcoded below rather than exposed as a hyperparameter.
-
-ADAPTIVE PLAUSIBILITY CONSTRAINT
-    Before any contrast is applied, tokens whose original logit falls more than
-    log(degf_beta) below the maximum are masked to -inf. This stops the
-    correction from promoting a token the model considered implausible to begin
-    with — without it, subtracting a large reference logit can leave a
-    nonsensical token on top.
-
-CAUTION — this file determines published numbers. Its arithmetic is not
-routine refactoring material; see BenchyBench/PIPELINES.md for the prerequisite
-before changing it.
-"""
 import copy
 import inspect
 import warnings
@@ -74,10 +18,6 @@ from transformers.generation.stopping_criteria import (
 )
 import transformers
 from transformers.generation.utils import SampleOutput
-
-from degf_utils.contrast_strategies import (
-    RitualContrast, VCDContrast, M3IDContrast, DiffusionContrast,
-)
 
 
 def sample(
@@ -245,67 +185,30 @@ def sample(
             degf_alpha_neg = model_kwargs.get("degf_alpha_neg") if model_kwargs.get("degf_alpha_neg") is not None else 1
             degf_beta = model_kwargs.get("degf_beta") if model_kwargs.get("degf_beta") is not None else 0.1
 
-            # Adaptive Plausibility Constraint. Tokens sitting more than
-            # log(degf_beta) below the top ORIGINAL logit are excluded further
-            # down. Computed from next_token_logits (the real image) rather
-            # than from the corrected scores on purpose: the constraint is
-            # meant to reflect what the model found plausible before any
-            # contrast was applied, so the correction cannot promote a token
-            # the model never considered.
+            # set cutoff for Adaptive Plausibility Constraints
             cutoff = torch.log(torch.tensor(degf_beta)) + next_token_logits.max(dim=-1, keepdim=True).values
-
-            # The arithmetic below is delegated to degf_utils.contrast_strategies,
-            # where each mode is a class covered by numerical-equivalence tests
-            # (BenchyBench/tests/test_contrast_strategies.py asserts each one
-            # reproduces the original inline expression bitwise). Control flow
-            # and the counters stay here, so the generation loop is unchanged.
+            
             if use_ritual:
-                # Purely additive: amplify agreement with the positive view.
-                diffs = RitualContrast(degf_alpha_pos).combine(
-                    next_token_logits, next_token_logits_pos)
+                diffs = (next_token_logits + degf_alpha_pos * next_token_logits_pos)
             elif use_vcd:
-                # Visual contrastive decoding: push away from the distorted
-                # view. Weights sum to 1 so the scale of the logits is roughly
-                # preserved.
-                diffs = VCDContrast(degf_alpha_neg).combine(
-                    next_token_logits, next_token_logits_neg)
+                diffs = (1 + degf_alpha_neg) * next_token_logits - degf_alpha_neg * next_token_logits_neg
             elif use_m3id:
-                # The correction STRENGTHENS with position, which is the
-                # opposite of what "decay schedule" suggests. gamma_t decays,
-                # but appears as (1 - gamma_t)/gamma_t, which grows: ~0.02 at
-                # t=1, ~53.6 at t=200. A VLM's conditioning on the image fades
-                # as generated text lengthens, so the visual correction is
-                # amplified to counteract that drift.
                 gamma_t = torch.exp(torch.tensor(-0.02*t))
                 diffs = next_token_logits + (next_token_logits - next_token_logits_neg)*(1-gamma_t)/gamma_t
                 t += 1
             elif use_diffusion:
-                # DeGF proper. Jensen-Shannon divergence between the two
-                # next-token distributions, computed as the mean KL of each
-                # against their midpoint M — symmetric, unlike KL alone, so
-                # neither view is privileged.
-                js = DiffusionContrast.js_divergence(next_token_logits, next_token_logits_neg)
+                M = 0.5 * (nn.functional.softmax(next_token_logits, dim=-1) + nn.functional.softmax(next_token_logits_neg, dim=-1))
+                js = 0.5 * nn.functional.kl_div(nn.functional.log_softmax(next_token_logits, dim=-1), M, reduction='batchmean') + 0.5 * nn.functional.kl_div(nn.functional.log_softmax(next_token_logits_neg, dim=-1), M, reduction='batchmean')
                 js_list.append(format(js.item(), '.4f'))
 
-                # The gate. Low divergence means the reference agrees, so its
-                # evidence is ADDED; high divergence means it disagrees, so it
-                # is treated as a distractor and SUBTRACTED. Switching sign
-                # per token is what distinguishes DeGF from fixed contrastive
-                # decoding.
-                #
-                # The 0.1 threshold is hardcoded, not a tunable — changing it
-                # changes the method, not a setting.
                 if js < 0.1: # 0.1
                     token_count += 1
                     diffs = next_token_logits + degf_alpha_pos * next_token_logits_neg
                 else:
-                    js_count += 1        # counted so the log reports how often
-                                         # the contrastive branch fired
+                    js_count += 1
                     token_count += 1
                     diffs = (1 + degf_alpha_neg) * next_token_logits - degf_alpha_neg * next_token_logits_neg
-
-            # Apply the plausibility mask. Note the comparison is against the
-            # ORIGINAL logits, not `diffs`.
+            
             logits = diffs.masked_fill(next_token_logits < cutoff, -float("inf"))
 
             logits = logits_processor(input_ids, logits)
@@ -589,7 +492,8 @@ def greedy_search(
                 #     diffs = (1 + degf_alpha_neg) * next_token_logits - degf_alpha_neg * next_token_logits_neg
                 # diffs = (1 + (kl + 0.5)) * next_token_logits - (kl + 0.5) * next_token_logits_neg
                 # calculate js divergence
-                js = DiffusionContrast.js_divergence(next_token_logits, next_token_logits_neg)
+                M = 0.5 * (nn.functional.softmax(next_token_logits, dim=-1) + nn.functional.softmax(next_token_logits_neg, dim=-1))
+                js = 0.5 * nn.functional.kl_div(nn.functional.log_softmax(next_token_logits, dim=-1), M, reduction='batchmean') + 0.5 * nn.functional.kl_div(nn.functional.log_softmax(next_token_logits_neg, dim=-1), M, reduction='batchmean')
                 js_list.append(format(js.item(), '.4f'))
                 # print("kl:",kl)
 
