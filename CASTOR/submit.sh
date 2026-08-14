@@ -3,7 +3,7 @@
 # log file, counts prompts, and submits one array task per (prompt × mode) pair
 # so everything runs in parallel — each task gets its own GPU allocation.
 #
-# Usage (from ~/DeGF/):
+# Usage (from ~/BenchyBench/DeGF/):
 #   bash CASTOR/submit.sh                    # N prompts × 2 modes = 2N tasks
 #   bash CASTOR/submit.sh --use-diffusion    # N tasks, degf only
 #   bash CASTOR/submit.sh --no-diffusion     # N tasks, baseline only

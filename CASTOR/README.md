@@ -9,13 +9,14 @@ Runs on the AART Lab `pleiades` SLURM cluster (`head1.condo.cs.cmu.edu`) via App
 # 1. Log into the cluster
 ssh <username>@head1.condo.cs.cmu.edu
 
-# 2. Clone / copy the repo into your home directory
-#    (images travel with the repo — they fit in the 500 GB home quota)
+# 2. Clone BenchyBench, which carries this repo as a submodule
+#    Images are NOT in this repo — they live once at the BenchyBench root
+#    and are shared by every method.
 cd ~
-# scp or git clone into ~/DeGF/
+git clone --recurse-submodules https://github.com/M4-on-Github/BenchyBench.git
 
 # 3. Baseline run (no diffusion)
-cd ~/DeGF
+cd ~/BenchyBench/DeGF
 sbatch CASTOR/submit_job.sh
 
 # 4. DeGF run (SD reference image + corrective decoding)
@@ -45,7 +46,7 @@ sbatch CASTOR/submit_job.sh
 
 ```bash
 srun -p pleiades --time=1:00:00 --cpus-per-task=4 --gpus=1 --mem=40G --pty bash
-cd ~/DeGF
+cd ~/BenchyBench/DeGF
 # Run a single image manually inside the container:
 apptainer exec --nv \
     --bind /data/$USER:/data/$USER \
@@ -58,7 +59,8 @@ apptainer exec --nv \
 
 | What | Where | Why |
 |------|-------|-----|
-| Code + images | `~/DeGF/` (home, 500 GB) | Fast access, backed up, fits comfortably |
+| Code | `~/BenchyBench/DeGF/` (home, 500 GB) | Fast access, backed up, fits comfortably |
+| Images | `~/BenchyBench/shipwreck_wiki_images/` | One shared copy at the BenchyBench root, not per-repo |
 | LLaVA-1.5-7B weights | `/data/$USER/llava-v1.5-7b/` | Large model needs 1.9 TB quota |
 | Apptainer container | `/data/$USER/castor.sif` | ~6 GB, doesn't fit well in home |
 | HF cache (SD model etc.) | `/data/$USER/.cache/huggingface/` | Downloaded once, reused across runs |
@@ -109,8 +111,9 @@ sbatch CASTOR/submit_job.sh --use-diffusion --degf-alpha-pos 5.0 --degf-alpha-ne
 # Write to a custom path (disables auto-suffix)
 sbatch CASTOR/submit_job.sh --answers-file /data/$USER/castor_results/exp1.jsonl
 
-# Point at a different image set
-sbatch CASTOR/submit_job.sh --image-folder CASTOR/shipwreck_wiki_images/subset
+# Point at a different image set (absolute paths are safest; the default is
+# resolved by CASTOR/benchybench_paths.sh from the BenchyBench root)
+sbatch CASTOR/submit_job.sh --image-folder /data/$USER/my_subset
 ```
 
 Run `python CASTOR/run_inference.py --help` for the full list.

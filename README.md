@@ -76,7 +76,7 @@ srun -p pleiades --time=1:00:00 --cpus-per-task=4 --gpus=1 --mem=40G --constrain
 
 ### Running CASTOR Inference
 
-From `~/DeGF/` on the cluster:
+From `~/BenchyBench/DeGF/` on the cluster:
 
 ```bash
 # Full sweep — baseline + DeGF with SD reference, all prompts

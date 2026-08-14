@@ -5,7 +5,7 @@
 # Do NOT call this file directly with sbatch — use CASTOR/submit.sh instead.
 # submit.sh creates /data/$USER/logs/ before sbatch opens the log file.
 #
-# Submit from ~/DeGF/:
+# Submit from ~/BenchyBench/DeGF/:
 #   bash CASTOR/submit.sh                                          # → answers_baseline.jsonl
 #   bash CASTOR/submit.sh --use-diffusion                         # → answers_degf.jsonl
 #   bash CASTOR/submit.sh --use-diffusion --run-name ap5_b02      # → answers_degf_ap5_b02.jsonl
@@ -16,9 +16,9 @@
 #
 # Interactive debug:
 #   srun -p pleiades --time=1:00:00 --cpus-per-task=4 --gpus=1 --mem=40G --constraint=RTX6000ADA --pty bash
-#   cd ~/DeGF
+#   cd ~/BenchyBench/DeGF
 #   apptainer exec --containall --nv \
-#       --bind /data/$USER:/data/$USER --bind ~/DeGF:~/DeGF --bind /tmp:/tmp \
+#       --bind /data/$USER:/data/$USER --bind ~/BenchyBench/DeGF:~/BenchyBench/DeGF --bind /tmp:/tmp \
 #       /data/$USER/castor.sif /opt/conda/bin/python3 CASTOR/run_inference.py
 # ─────────────────────────────────────────────────────────────────────────────
 #SBATCH -p pleiades

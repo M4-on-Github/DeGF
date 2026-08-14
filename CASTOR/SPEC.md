@@ -39,7 +39,7 @@ tail -f /data/$USER/logs/castor_<JOBID>.out
 # Interactive debug (allocate node, then run directly)
 srun -p pleiades --time=1:00:00 --cpus-per-task=4 --gpus=1 --mem=40G --pty bash
 # inside the node:
-cd ~/DeGF
+cd ~/BenchyBench/DeGF
 apptainer exec --nv \
   --bind /data/$USER:/data/$USER \
   /data/$USER/castor.sif \

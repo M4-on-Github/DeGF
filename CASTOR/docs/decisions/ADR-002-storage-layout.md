@@ -1,7 +1,7 @@
 # ADR-002: Storage layout on the pleiades cluster
 
 ## Status
-Accepted
+Accepted — amended (see *Amendment: image location* below)
 
 ## Date
 2026-06-17
@@ -22,7 +22,8 @@ Stable Diffusion weights (~4 GB), the Apptainer container (~6 GB), HF cache, and
 
 | Artifact | Location | Reason |
 |----------|----------|--------|
-| Code + images | `~/DeGF/` (home) | Comfortably under 500 GB; convenient for editing |
+| Code | `~/BenchyBench/DeGF/` (home) | Comfortably under 500 GB; convenient for editing |
+| Images | `~/BenchyBench/shipwreck_wiki_images/` (home) | One shared copy — see amendment below |
 | LLaVA weights | `/data/$USER/llava-v1.5-7b/` | 14 GB too large for the home quota over time |
 | Apptainer `.sif` | `/data/$USER/castor.sif` | ~6 GB; home quota would be tight |
 | HF model cache | `/data/$USER/.cache/huggingface/` | SD model (~4 GB) + other downloads |
@@ -53,3 +54,32 @@ hardcoded username in any config or script.
   or empty. The download runs inside the container (same dependency set) without GPU.
 - `/data/$USER/` is bound into the container via `--bind $DATA_DIR:$DATA_DIR` so
   the same absolute path resolves inside and outside the container.
+
+## Amendment: image location
+
+**Date:** 2026-08-14
+
+The original decision stored code and images together in each method repo. That
+held while DeGF was a standalone checkout at `~/DeGF`. It no longer does.
+
+DeGF, ONLY, QWEN-Maritime and Eval_CASTOR are now submodules of BenchyBench, and
+the image set was consolidated into a single copy at the BenchyBench root:
+
+```
+~/BenchyBench/
+├── DeGF/                       ← this repo
+├── ONLY/  QWEN-Maritime/  Eval_CASTOR/
+└── shipwreck_wiki_images/      ← one shared copy
+    └── sorted_images/
+```
+
+Quota was never the reason. At a 500 GB home allowance the image set is
+negligible, and four copies would have cost nothing. The reason is correctness:
+four copies drift, and a pipeline reading a stale one produces plausible results
+that nobody questions. One copy makes that failure impossible.
+
+`CASTOR/benchybench_paths.sh` resolves the location, preferring an explicit
+`BENCHYBENCH_ROOT`, then the validated submission directory, then the script's
+own position — probing each candidate rather than assuming, and erroring instead
+of guessing. Standalone use is still supported: set `BENCHYBENCH_ROOT`, or pass
+`--image-folder` explicitly.
