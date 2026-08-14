@@ -75,6 +75,10 @@ from transformers.generation.stopping_criteria import (
 import transformers
 from transformers.generation.utils import SampleOutput
 
+from degf_utils.contrast_strategies import (
+    RitualContrast, VCDContrast, M3IDContrast, DiffusionContrast,
+)
+
 
 def sample(
     self,
@@ -250,18 +254,28 @@ def sample(
             # the model never considered.
             cutoff = torch.log(torch.tensor(degf_beta)) + next_token_logits.max(dim=-1, keepdim=True).values
 
+            # The arithmetic below is delegated to degf_utils.contrast_strategies,
+            # where each mode is a class covered by numerical-equivalence tests
+            # (BenchyBench/tests/test_contrast_strategies.py asserts each one
+            # reproduces the original inline expression bitwise). Control flow
+            # and the counters stay here, so the generation loop is unchanged.
             if use_ritual:
                 # Purely additive: amplify agreement with the positive view.
-                diffs = (next_token_logits + degf_alpha_pos * next_token_logits_pos)
+                diffs = RitualContrast(degf_alpha_pos).combine(
+                    next_token_logits, next_token_logits_pos)
             elif use_vcd:
                 # Visual contrastive decoding: push away from the distorted
                 # view. Weights sum to 1 so the scale of the logits is roughly
                 # preserved.
-                diffs = (1 + degf_alpha_neg) * next_token_logits - degf_alpha_neg * next_token_logits_neg
+                diffs = VCDContrast(degf_alpha_neg).combine(
+                    next_token_logits, next_token_logits_neg)
             elif use_m3id:
-                # Correction decays as generation proceeds: later tokens are
-                # constrained more by the text produced so far than by the
-                # image, so a constant visual correction would over-steer.
+                # The correction STRENGTHENS with position, which is the
+                # opposite of what "decay schedule" suggests. gamma_t decays,
+                # but appears as (1 - gamma_t)/gamma_t, which grows: ~0.02 at
+                # t=1, ~53.6 at t=200. A VLM's conditioning on the image fades
+                # as generated text lengthens, so the visual correction is
+                # amplified to counteract that drift.
                 gamma_t = torch.exp(torch.tensor(-0.02*t))
                 diffs = next_token_logits + (next_token_logits - next_token_logits_neg)*(1-gamma_t)/gamma_t
                 t += 1
@@ -270,8 +284,7 @@ def sample(
                 # next-token distributions, computed as the mean KL of each
                 # against their midpoint M — symmetric, unlike KL alone, so
                 # neither view is privileged.
-                M = 0.5 * (nn.functional.softmax(next_token_logits, dim=-1) + nn.functional.softmax(next_token_logits_neg, dim=-1))
-                js = 0.5 * nn.functional.kl_div(nn.functional.log_softmax(next_token_logits, dim=-1), M, reduction='batchmean') + 0.5 * nn.functional.kl_div(nn.functional.log_softmax(next_token_logits_neg, dim=-1), M, reduction='batchmean')
+                js = DiffusionContrast.js_divergence(next_token_logits, next_token_logits_neg)
                 js_list.append(format(js.item(), '.4f'))
 
                 # The gate. Low divergence means the reference agrees, so its
@@ -576,8 +589,7 @@ def greedy_search(
                 #     diffs = (1 + degf_alpha_neg) * next_token_logits - degf_alpha_neg * next_token_logits_neg
                 # diffs = (1 + (kl + 0.5)) * next_token_logits - (kl + 0.5) * next_token_logits_neg
                 # calculate js divergence
-                M = 0.5 * (nn.functional.softmax(next_token_logits, dim=-1) + nn.functional.softmax(next_token_logits_neg, dim=-1))
-                js = 0.5 * nn.functional.kl_div(nn.functional.log_softmax(next_token_logits, dim=-1), M, reduction='batchmean') + 0.5 * nn.functional.kl_div(nn.functional.log_softmax(next_token_logits_neg, dim=-1), M, reduction='batchmean')
+                js = DiffusionContrast.js_divergence(next_token_logits, next_token_logits_neg)
                 js_list.append(format(js.item(), '.4f'))
                 # print("kl:",kl)
 
