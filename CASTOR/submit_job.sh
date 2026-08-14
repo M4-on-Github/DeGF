@@ -31,9 +31,33 @@
 # NOTE: --output and --error are set by CASTOR/submit.sh to /data/$USER/logs/
 
 set -e
-# SLURM_SUBMIT_DIR is the directory where sbatch was called (~/DeGF/).
-# Avoids relying on $0 path resolution which can vary across SLURM versions.
-REPO="${SLURM_SUBMIT_DIR:-$(cd "$(dirname "$0")/.." && pwd)}"
+
+# ── Locate the shared path library ───────────────────────────────────────────
+# SLURM copies this script to a spool directory before executing it, so $0 can
+# point at /var/spool/... rather than the repo. Try the script's own directory
+# (direct execution) before the submission directory (SLURM batch).
+_bb_lib=""
+for _c in "$(dirname "$0")/benchybench_paths.sh" \
+          "${SLURM_SUBMIT_DIR:-}/CASTOR/benchybench_paths.sh" \
+          "${SLURM_SUBMIT_DIR:-}/benchybench_paths.sh" \
+          "${BENCHYBENCH_ROOT:-}/DeGF/CASTOR/benchybench_paths.sh"; do
+    [[ -f "$_c" ]] && { _bb_lib="$_c"; break; }
+done
+if [[ -z "$_bb_lib" ]]; then
+    echo "ERROR: cannot find CASTOR/benchybench_paths.sh" >&2
+    echo "       Submit from the repo root, or set BENCHYBENCH_ROOT." >&2
+    exit 1
+fi
+source "$_bb_lib"
+
+# Resolve the layout once and export it, so prepare_dataset.py, run_inference.py
+# and any nested submission all agree on which tree they are reading.
+# bb_resolve_root probes each candidate and fails rather than guessing; this
+# previously trusted SLURM_SUBMIT_DIR blindly and could run against the wrong
+# image set without any error.
+BENCHYBENCH_ROOT="$(bb_resolve_root)" || exit 1
+export BENCHYBENCH_ROOT
+REPO="$(cd "$(dirname "$_bb_lib")/.." && pwd)"
 cd "$REPO"
 mkdir -p "/data/$USER/logs"
 
@@ -46,6 +70,9 @@ echo " Started  : $(date)"
 echo " Args     : $@"
 echo " User     : $USER"
 echo " Repo     : $REPO"
+# Record the resolved layout in every job log. Without this, a run against a
+# stale image copy leaves no evidence of which tree it actually read.
+bb_report | sed 's/^/ /'
 echo "=========================================="
 
 nvidia-smi --query-gpu=name,memory.total,driver_version --format=csv,noheader || true
@@ -88,7 +115,7 @@ echo "[$(date)] Container Python: $PYTHON"
 #   both modes (default) → even task ID = baseline, odd = degf (same prompt)
 #   one mode specified   → task ID maps directly to prompt index
 PROMPTS_DIR="$REPO/CASTOR/prompts"
-IMAGE_DIR="$(dirname $REPO)/shipwreck_wiki_images/sorted_images"
+IMAGE_DIR="$(bb_images_dir)" || exit 1
 
 PROMPT_FILES=( "$PROMPTS_DIR"/*.txt )
 N_PROMPTS=${#PROMPT_FILES[@]}
@@ -158,7 +185,12 @@ $APPTAINER_BASE "$SIF" $PYTHON "$REPO/CASTOR/prepare_dataset.py" \
     --prompt-file "$PROMPT_FILE"
 
 # ── Run inference ─────────────────────────────────────────────────────────────
+# --image-folder is passed explicitly so config.json's relative
+# "../shipwreck_wiki_images" is never consulted; that path resolved against the
+# current working directory and so depended on where the job was launched.
+# It precedes "${PASSTHROUGH[@]}" so a user-supplied --image-folder still wins.
 time $APPTAINER_BASE "$SIF" $PYTHON "$REPO/CASTOR/run_inference.py" \
+    --image-folder  "$IMAGE_DIR" \
     "${PASSTHROUGH[@]}" \
     --question-file "$QUESTIONS_FILE" \
     --run-name      "$RUN_NAME" \
